@@ -1,0 +1,53 @@
+{
+  "name": "news",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbo && npm run deploy",
+    "deploy": "./deploy.sh",
+    "start": "next start",
+    "lint": "next lint",
+    "postbuild": "cp -r public ./.next/standalone"
+  },
+  "dependencies": {
+    "@radix-ui/react-checkbox": "^1.3.2",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-progress": "^1.1.7",
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.5",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "arctic": "^3.7.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.525.0",
+    "marked": "^16.0.0",
+    "nano": "^10.1.4",
+    "next": "^15.4.1",
+    "next-themes": "^0.4.6",
+    "next-timeago": "^0.2.0",
+    "postgres": "^3.4.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hooks": "^1.0.1",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.1.11",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^20.19.8",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "eslint": "^9.31.0",
+    "eslint-config-next": "15.3.5",
+    "tailwindcss": "^4.1.11",
+    "tw-animate-css": "^1.3.5",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,93 @@
+import type { AppConfig, AnimationType } from "@/types/video-config";
+
+export const sequenceConfig: AppConfig = {
+  globalSettings: {
+    defaultScrollMultiplier: 150,
+    theme: "dark",
+    defaultAnimation: {
+      enter: "fade",
+      exit: "fade",
+      duration: 0.8,
+    },
+  },
+  sequences: [
+    {
+      id: "main-sequence",
+      framePrefix: "out_",
+      totalFrames: 75,
+      frameExtension: "png",
+      title: "Пътят към Здравето",
+      description: "Открийте балансирана нутрициология за по-добър живот",
+      scrollMultiplier: 300,
+      totalSlides: 4,
+      preloadAhead: 5,
+      showDevInfo: false,
+      overlayClassName: "bg-black/50",
+      textSlides: [
+        {
+          id: "slide-1",
+          text: "Пътят към Здравето",
+          subtitle: "Открийте балансирана нутрициология за по-добър живот",
+          slideIndex: 0,
+          position: "center",
+          style: "heading",
+          buttonText: "",
+          buttonHref: "",
+          animation: {
+            enter: "scale",
+            exit: "fade",
+            duration: 1.2,
+            delay: 0,
+          },
+        },
+        {
+          id: "slide-2",
+          text: "Персонализирани Планове",
+          subtitle: "Съобразени с вашите индивидуални нужди и цели",
+          slideIndex: 1,
+          position: "left",
+          style: "heading",
+          imageUrl: "/file.svg",
+          animation: {
+            enter: "slideRight",
+            exit: "slideLeft",
+            duration: 0.8,
+            delay: 0,
+            stagger: 0.1,
+          },
+        },
+        {
+          id: "slide-3",
+          text: "Експертни Консултации",
+          subtitle: "Получете професионални съвети от водещи нутрициолози",
+          slideIndex: 2,
+          position: "right",
+          style: "heading",
+          imageUrl: "/globe.svg",
+          animation: {
+            enter: "slideLeft",
+            exit: "slideRight",
+            duration: 0.8,
+            delay: 0,
+          },
+        },
+        {
+          id: "slide-4",
+          text: "Цялостен Подход",
+          subtitle: "За трайно здраве, енергия и благополучие",
+          slideIndex: 3,
+          position: "center",
+          style: "heading",
+          imageUrl: "/next.svg",
+          animation: {
+            enter: "bounce",
+            exit: "slideUp",
+            duration: 1.0,
+            delay: 0,
+          },
+        },
+      ],
+    },
+  ],
+  videos: [],
+};

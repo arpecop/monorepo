@@ -1,0 +1,41 @@
+export type Comment = {
+  id: number
+  user: string
+  date: string
+  parentID: string
+  replyingToID: number
+  comment: string
+}
+
+export type UserComment = Comment & {
+  children?: UserComment[]
+}
+
+export function buildCommentTree(comments: UserComment[]): UserComment[] {
+  const lookup: { [key: number]: UserComment } = {}
+  const rootComments: UserComment[] = []
+
+  // Build lookup with children initialized
+  comments.forEach((comment) => {
+    lookup[comment.id] = { ...comment, children: [] }
+  })
+
+  // Attach each comment to its parent or as a root
+  comments.forEach((comment) => {
+    // Treat comments with replyingToID > 0 as children
+    if (comment.replyingToID > 0) {
+      const parent = lookup[comment.replyingToID]
+      if (parent) {
+        parent.children.push(lookup[comment.id])
+      } else {
+        // If no parent found, push as root (or handle error)
+        rootComments.push(lookup[comment.id])
+      }
+    } else {
+      // replyingToID is 0, null, or undefined: treat as root
+      rootComments.push(lookup[comment.id])
+    }
+  })
+  comments = null
+  return rootComments
+}

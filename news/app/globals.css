@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+
+@layer base {
+.bg-background {
+    background-color: theme('--color-red-900');
+}
+  .border-b {
+    border-color: theme('colors.gray.300');
+  }
+  .border {
+    border-color: theme('colors.gray.300');
+  }
+  .font-playfair {
+
+    color: theme('colors.gray.800');
+    font-family: 'Playfair Display', serif;
+  }
+}

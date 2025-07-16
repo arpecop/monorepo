@@ -1,0 +1,113 @@
+import { Google, generateState, generateCodeVerifier } from "arctic";
+import type { OAuth2Tokens } from "arctic";
+import { cookies } from "next/headers";
+
+const google = new Google(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  "https://userz.net/api/auth/callback/google",
+);
+
+let codeVerifier: string | null = null;
+
+export async function GoogleRedirect(): Promise<Response> {
+  const state = generateState();
+  codeVerifier = generateCodeVerifier();
+
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "openid",
+    "profile",
+  ]);
+  // Assuming Bun.CookieMap is available in your server environment
+  // new Bun.CookieMap([['google_code_verifier', codeVerifier]])
+
+  return new Response("{}", {
+    status: 302,
+    headers: {
+      Location: url.toString(),
+    },
+  });
+}
+
+export async function GoogleCallback(req: Request): Promise<Response> {
+  const url = new URL(req.url);
+  const code = url.searchParams.get("code");
+  const redirectToApp = url.searchParams.get("redirect_to_app") === "true"; // Check for this parameter
+  const cookie = req.headers.get("cookie");
+  const cookies = Object.fromEntries(
+    cookie.split("; ").map((c) => c.split("=")),
+  );
+
+  try {
+    const tokens = (await google.validateAuthorizationCode(
+      code,
+      codeVerifier,
+    )) as { data: { access_token: string; id_token: string } } & OAuth2Tokens;
+    codeVerifier = null; // remove code verifier after use
+    const accessToken = tokens.data.access_token;
+    const userinfoUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
+
+    const userinfo = await fetch(userinfoUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        return data;
+      })
+      .catch((error) => {
+        console.error("Error fetching profile information:", error);
+      });
+
+    cached(userinfo.sub, { ...userinfo, accessToken });
+
+    // Always redirect to the React Native app for now
+    return new Response(null, {
+      status: 302,
+      headers: {
+        "Content-Type": "application/json",
+        Location: "bitpazar://chat?idToken=" + tokens.data.id_token,
+        "Set-Cookie":
+          "sessionid=" + userinfo.sub + "; HttpOnly; Path=/; Max-Age=315360000",
+      },
+    });
+  } catch (e) {
+    return new Response(
+      JSON.stringify({
+        e,
+        code,
+        x: process.env.GOOGLE_CLIENT_ID,
+        codeVerifier,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  }
+}
+
+export async function GetSession(req: Request): Promise<Response> {
+  const cookie = req.headers.get("cookie");
+  const cookies = Object.fromEntries(
+    cookie.split("; ").map((c) => c.split("=")),
+  );
+  const sessionid = cookies["sessionid"];
+  const user = await cached(sessionid);
+
+  return new Response(user ? JSON.stringify(user) : "{}", {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}

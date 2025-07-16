@@ -1,0 +1,12 @@
+import { db } from '@/lib/sql'
+
+export async function GetComments(req: Request): Promise<Response> {
+  const { searchParams } = new URL(req.url)
+  const parentID = searchParams.get('id')
+
+  const comments = await db`SELECT * FROM "qa"."comments" WHERE "parentID" = ${parentID}`
+
+  return new Response(JSON.stringify(comments), {
+    headers: { 'Content-Type': 'application/json' },
+  })
+}

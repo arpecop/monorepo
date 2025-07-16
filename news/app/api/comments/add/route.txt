@@ -1,0 +1,36 @@
+import { db } from '@/lib/sql'
+import { commentAdd } from '@/lib/cache'
+import { type UserComment } from '@/lib/comments'
+
+export async function AddComment(req: Request): Promise<Response> {
+  const { parentID, replyingToID, comment } = await req.json()
+  const cookie = req.headers.get('cookie')
+  const cookies = Object.fromEntries(
+    cookie.split('; ').map((c) => c.split('='))
+  )
+  const userx =
+    await db`SELECT * FROM "qa"."comments" WHERE "user" = ${cookies['sessionid']}`
+
+  if (userx[0]) {
+    const { name } = JSON.parse(userx[0].comment)
+    const user = name.replace(' ', '').toLowerCase()
+
+    const newComment: UserComment = {
+      id: 0,
+      parentID,
+      replyingToID,
+      comment,
+      user,
+      date: new Date().toISOString(),
+      children: [],
+    }
+
+    commentAdd(parentID, { comments: [newComment] })
+    return new Response(
+      JSON.stringify(newComment)
+    )
+  }
+  return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
