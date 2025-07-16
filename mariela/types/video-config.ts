@@ -33,6 +33,7 @@ export interface ImageSequenceConfig {
   id: string;
   framePrefix: string;
   totalFrames: number;
+  startFrame?: number;
   frameExtension: string;
   title: string;
   description?: string;
@@ -44,20 +45,10 @@ export interface ImageSequenceConfig {
   overlayClassName?: string;
 }
 
-export interface VideoConfig {
-  id: string;
-  src: string;
-  duration: number;
-  title: string;
-  description?: string;
-  textSlides: TextSlide[];
-  scrollMultiplier?: number;
-  totalSlides: number;
-}
+
 
 export interface AppConfig {
   sequences: ImageSequenceConfig[];
-  videos: VideoConfig[];
   globalSettings: {
     defaultScrollMultiplier: number;
     theme: "dark" | "light";

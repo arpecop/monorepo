@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 interface UseImagePreloaderProps {
   framePrefix: string;
   totalFrames: number;
+  startFrame?: number;
   frameExtension: string;
   preloadAhead?: number;
   onFirstFrameLoad?: (image: HTMLImageElement) => void;
@@ -13,6 +14,7 @@ interface UseImagePreloaderProps {
 export function useImagePreloader({
   framePrefix,
   totalFrames,
+  startFrame = 1,
   frameExtension,
   preloadAhead = 5,
   onFirstFrameLoad,
@@ -20,12 +22,12 @@ export function useImagePreloader({
   const [loadedImages, setLoadedImages] = useState<
     Map<number, HTMLImageElement>
   >(new Map());
-  const [currentFrame, setCurrentFrame] = useState(1);
+  const [currentFrame, setCurrentFrame] = useState(startFrame);
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
 
   const getFramePath = useCallback(
     (frameNumber: number) => {
-      const paddedNumber = frameNumber.toString().padStart(3, "0");
+      const paddedNumber = frameNumber.toString().padStart(4, "0");
       return `/ezgif-split/${framePrefix}${paddedNumber}.${frameExtension}`;
     },
     [framePrefix, frameExtension],
@@ -43,7 +45,7 @@ export function useImagePreloader({
         img.crossOrigin = "anonymous";
         img.onload = () => {
           setLoadedImages((prev) => new Map(prev).set(frameNumber, img));
-          if (frameNumber === 1 && !firstFrameLoaded) {
+          if (frameNumber === startFrame && !firstFrameLoaded) {
             setFirstFrameLoaded(true);
             if (onFirstFrameLoad) {
               onFirstFrameLoad(img);
@@ -55,14 +57,14 @@ export function useImagePreloader({
         img.src = getFramePath(frameNumber);
       });
     },
-    [getFramePath, loadedImages, firstFrameLoaded, onFirstFrameLoad],
+    [getFramePath, loadedImages, firstFrameLoaded, onFirstFrameLoad, startFrame],
   );
 
   const preloadFrames = useCallback(
-    async (startFrame: number, count: number) => {
+    async (startFrameNumber: number, count: number) => {
       const promises: Promise<HTMLImageElement>[] = [];
       for (let i = 0; i < count; i++) {
-        const frameNumber = startFrame + i;
+        const frameNumber = startFrameNumber + i;
         if (frameNumber >= 1 && frameNumber <= totalFrames) {
           promises.push(preloadImage(frameNumber));
         }
@@ -78,17 +80,17 @@ export function useImagePreloader({
 
   useEffect(() => {
     // Preload initial frames
-    preloadFrames(1, Math.min(10, totalFrames));
-  }, [preloadFrames, totalFrames]);
+    preloadFrames(startFrame, Math.min(10, totalFrames));
+  }, [preloadFrames, totalFrames, startFrame]);
 
   useEffect(() => {
     // Preload frames ahead of current frame
-    const startFrame = Math.max(1, currentFrame);
+    const startFrameNumber = Math.max(startFrame, currentFrame);
     const endFrame = Math.min(totalFrames, currentFrame + preloadAhead);
-    if (endFrame > startFrame) {
-      preloadFrames(startFrame, endFrame - startFrame + 1);
+    if (endFrame > startFrameNumber) {
+      preloadFrames(startFrameNumber, endFrame - startFrameNumber + 1);
     }
-  }, [currentFrame, preloadFrames, preloadAhead, totalFrames]);
+  }, [currentFrame, preloadFrames, preloadAhead, totalFrames, startFrame]);
 
   const getCurrentImage = useCallback(
     (frameNumber: number) => {

@@ -34,7 +34,7 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
   const frameProgress = useTransform(
     smoothScrollYProgress,
     [0, 1],
-    [1, config.totalFrames],
+    [config.startFrame || 1, config.totalFrames],
   );
 
   const drawImage = (image: HTMLImageElement) => {
@@ -53,17 +53,18 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
     useImagePreloader({
       framePrefix: config.framePrefix,
       totalFrames: config.totalFrames,
+      startFrame: config.startFrame,
       frameExtension: config.frameExtension,
       preloadAhead: config.preloadAhead || 5,
       onFirstFrameLoad: drawImage,
     });
 
   useEffect(() => {
-    const firstImage = getCurrentImage(1);
+    const firstImage = getCurrentImage(config.startFrame || 1);
     if (firstImage) {
       drawImage(firstImage);
     }
-  }, [getCurrentImage]);
+  }, [getCurrentImage, config.startFrame]);
 
   useEffect(() => {
     const unsubscribe = frameProgress.on("change", (latest) => {

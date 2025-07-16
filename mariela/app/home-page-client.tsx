@@ -11,48 +11,6 @@ export function HomePageClient() {
     <div className="bg-black">
       {/* Hero Section */}
 
-      <section
-        id="начало"
-        className="relative h-screen flex items-center justify-center text-white overflow-hidden"
-        style={{
-          backgroundImage: `url('/ezgif-split/out_001x.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'bottom',
-        }}
-      >
-        
-        <div className="text-center z-10">
-          <motion.h1
-            className="text-6xl md:text-8xl font-thin mb-6"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            езо
-          </motion.h1>
-          <motion.p
-            className="text-xl md:text-2xl text-gray-300 mb-4"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-          >
-            нутрициология
-          </motion.p>
-          <motion.div
-            className="text-sm text-gray-500"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6 }}
-          >
-            Общо кадри:{" "}
-            {sequenceConfig.sequences.reduce(
-              (acc, seq) => acc + seq.totalFrames,
-              0,
-            )}
-          </motion.div>
-        </div>
-      </section>
-
       {/* Image Sequence Sections */}
       {sequenceConfig.sequences.map((sequence) => (
         <ImageSequenceSection key={sequence.id} config={sequence} />
@@ -85,7 +43,8 @@ export function HomePageClient() {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              Открийте персонализирани хранителни планове и експертни съвети за по-добро здраве.
+              Открийте персонализирани хранителни планове и експертни съвети за
+              по-добро здраве.
             </motion.p>
             <motion.div
               className="grid md:grid-cols-3 gap-8"
@@ -95,7 +54,10 @@ export function HomePageClient() {
               viewport={{ once: true }}
             >
               {[
-                { title: "Персонализирани Планове", desc: "Съобразени с вашите нужди" },
+                {
+                  title: "Персонализирани Планове",
+                  desc: "Съобразени с вашите нужди",
+                },
                 { title: "Експертни Консултации", desc: "Индивидуален подход" },
                 {
                   title: "Цялостен Подход",
