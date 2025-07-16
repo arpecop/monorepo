@@ -17,8 +17,7 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
   const [currentFrameNumber, setCurrentFrameNumber] = useState(1);
   const [animatedSlides, setAnimatedSlides] = useState<Set<string>>(new Set());
 
-  const scrollHeight =
-    (config.totalFrames / 30) * (config.scrollMultiplier || 150); // Assuming 30fps equivalent
+  const scrollHeight = config.totalSlides * 100; // Each slide gets 100vh
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -94,20 +93,15 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
   const getPositionClasses = (position: TextSlide["position"]) => {
     switch (position) {
       case "left":
-        return "left-8 top-1/2 -translate-y-1/2 text-left " + extraclasses;
+        return "left-4 md:left-8 text-left max-w-sm md:max-w-md";
       case "right":
-        return "right-8 top-1/2 -translate-y-1/2 text-right " + extraclasses;
+        return "right-4 md:right-8 text-right max-w-sm md:max-w-md";
       case "top":
-        return "top-8 left-1/2 -translate-x-1/2 text-center " + extraclasses;
+        return "top-8 left-1/2 -translate-x-1/2 text-center max-w-lg md:max-w-2xl";
       case "bottom":
-        return (
-          "bottom-8 left-1/2 -translate-x-1/2 text-center   " + extraclasses
-        );
+        return "bottom-8 left-1/2 -translate-x-1/2 text-center max-w-lg md:max-w-2xl";
       default:
-        return (
-          "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center " +
-          extraclasses
-        );
+        return "left-1/2 -translate-x-1/2 text-center max-w-lg md:max-w-2xl";
     }
   };
 
@@ -124,19 +118,9 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
     }
   };
 
-  const calculateSlidePosition = (slideIndex: number, totalSlides: number) => {
-    if (totalSlides <= 1) return 50;
-
-    const padding = 10;
-    const availableSpace = 100 - padding * 2;
-    const slideSpacing = availableSpace / (totalSlides - 1);
-
-    return padding + slideIndex * slideSpacing;
-  };
-
   const renderAnimatedText = (slide: TextSlide) => {
     const animation = slide.animation || {
-      enter: "fade",
+      enter: "slideRight", // Default to slideRight for new behavior
       exit: "fade",
       duration: 0.8,
       delay: 0,
@@ -151,10 +135,6 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
       animation.stagger || 0,
     );
 
-    const topPosition = calculateSlidePosition(
-      slide.slideIndex,
-      config.totalSlides,
-    );
     const isAnimated = animatedSlides.has(slide.id);
 
     const handleViewportEnter = () => {
@@ -206,7 +186,6 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
       <motion.div
         key={slide.id}
         className={`absolute ${getPositionClasses(slide.position)} text-white z-10 w-full ${isSidePosition ? "flex items-center gap-8" : "flex flex-col items-center gap-4"}`}
-        style={{ top: `${topPosition}%` }}
         initial="initial"
         animate={isAnimated ? "animate" : "initial"}
         variants={variants}
@@ -336,9 +315,20 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
         </div>
       </div>
 
-      {/* Absolutely Positioned Text Slides */}
+      {/* Text Slides Scroll Container */}
+      {/* Text Slides Scroll Container */}
       <div className="absolute inset-0 pointer-events-none">
-        {config.textSlides.map((slide) => renderAnimatedText(slide))}
+        {config.textSlides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className="h-screen flex items-center justify-center relative"
+            style={{ top: `${index * 100}vh` }}
+          >
+            <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-auto">
+              {renderAnimatedText(slide)}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
