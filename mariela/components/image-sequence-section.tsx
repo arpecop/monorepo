@@ -16,7 +16,8 @@ function Slide({ slide }: { slide: TextSlide }) {
     offset: ["start end", "end start"],
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], ["100%", "-100%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["100%", "-100%"]);
+  const x = useTransform(scrollYProgress, [0, 0.5, 1], ["0%", "0%", "-100%"]);
   const opacity = useTransform(
     scrollYProgress,
     [0, 0.25, 0.75, 1],
@@ -37,7 +38,7 @@ function Slide({ slide }: { slide: TextSlide }) {
   const getStyleClasses = (style: TextSlide["style"]) => {
     switch (style) {
       case "heading":
-        return "text-4xl md:text-6xl font-thin";
+        return "text-4xl md:text-6xl font-thin whitespace-pre-line";
       case "body":
         return "text-lg md:text-xl font-normal";
       case "caption":
@@ -54,7 +55,17 @@ function Slide({ slide }: { slide: TextSlide }) {
         slide.position
       )}`}
     >
-      <motion.div style={{ x, opacity }} className="max-w-2xl">
+      <motion.div
+        style={{ y, x, opacity }}
+        className="max-w-2xl flex flex-col items-center"
+      >
+        {slide.imageUrl && (
+          <motion.img
+            src={slide.imageUrl}
+            alt={slide.text}
+            className="w-1/3 md:w-1/4 mb-4"
+          />
+        )}
         <h2 className={getStyleClasses(slide.style)}>{slide.text}</h2>
         {slide.subtitle && (
           <p className="text-lg md:text-xl text-gray-300 mt-2">

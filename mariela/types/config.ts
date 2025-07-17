@@ -32,5 +32,5 @@ export interface AppConfig {
     defaultScrollMultiplier: number;
     theme: "light" | "dark";
   };
-  sequences: ImageSequenceConfig[];
+  sequences: (ImageSequenceConfig & { type?: "static" })[];
 }

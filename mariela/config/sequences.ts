@@ -21,16 +21,15 @@ export const sequenceConfig: AppConfig = {
       textSlides: [
         {
           id: "slide-1-1",
-          text: "HARMONY ПРОГРАМА — ТВОЯТ ПЪТ КЪМ ЗДРАВЕТО И ЛЕКОТАТА",
-          subtitle: "1",
+          text: "HARMONY ПРОГРАМА\nТвоят път към здравето и лекотата",
           slideIndex: 0,
           position: "center",
           style: "heading",
+          imageUrl: "/logo.png",
         },
         {
           id: "slide-1-2",
           text: "Harmony Програм е персонализирана програма за хранене, която започва с анализ на коса, за да разкрие кои храни възпаляват твоето тяло.",
-          subtitle: "2",
           slideIndex: 1,
           position: "center",
           style: "heading",
@@ -38,7 +37,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-1-3",
           text: "Изследваме 180 храни и ти даваме: списък с индивидуално неподходящи храни.",
-          subtitle: "3",
           slideIndex: 2,
           position: "center",
           style: "heading",
@@ -46,7 +44,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-1-4",
           text: "...насоки как да ги изключиш и кога да ги върнеш...",
-          subtitle: "4",
           slideIndex: 3,
           position: "center",
           style: "heading",
@@ -54,7 +51,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-1-5",
           text: "...план за постигане на баланс, без глад и лишения.",
-          subtitle: "5",
           slideIndex: 4,
           position: "center",
           style: "heading",
@@ -62,7 +58,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-1-6",
           text: "Важно: Програмата не е за цял живот — достатъчни са няколко седмици, за да видиш първите резултати!",
-          subtitle: "6",
           slideIndex: 5,
           position: "center",
           style: "heading",
@@ -85,7 +80,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-2-1",
           text: "Защо другите диети не работят?",
-          subtitle: "1",
           slideIndex: 0,
           position: "center",
           style: "heading",
@@ -93,7 +87,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-2-2",
           text: "Другите диети са универсални — броят калории, но не отчитат: твоя метаболизъм.",
-          subtitle: "2",
           slideIndex: 1,
           position: "center",
           style: "heading",
@@ -101,7 +94,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-2-3",
           text: "...твоите възпалителни реакции...",
-          subtitle: "3",
           slideIndex: 2,
           position: "center",
           style: "heading",
@@ -109,7 +101,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-2-4",
           text: "...твоите индивидуални нужди.",
-          subtitle: "4",
           slideIndex: 3,
           position: "center",
           style: "heading",
@@ -117,7 +108,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-2-5",
           text: "Дори “здравословни” храни като краставица, домат или авокадо могат да вредят, ако тялото ти ги възприема като дразнител.",
-          subtitle: "5",
           slideIndex: 4,
           position: "center",
           style: "heading",
@@ -125,7 +115,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-2-6",
           text: "Защо анализ от коса? Косъмът е носител на твоята ДНК информация.",
-          subtitle: "6",
           slideIndex: 5,
           position: "center",
           style: "heading",
@@ -148,7 +137,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-3-1",
           text: "Какво печелиш?",
-          subtitle: "1",
           slideIndex: 0,
           position: "center",
           style: "heading",
@@ -156,7 +144,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-3-2",
           text: "Когато махнем възпалителните храни, тялото започва да: гори мазнини.",
-          subtitle: "2",
           slideIndex: 1,
           position: "center",
           style: "heading",
@@ -164,7 +151,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-3-3",
           text: "...отпуска натрупаните течности...",
-          subtitle: "3",
           slideIndex: 2,
           position: "center",
           style: "heading",
@@ -172,7 +158,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-3-4",
           text: "...облекчава ставите...",
-          subtitle: "4",
           slideIndex: 3,
           position: "center",
           style: "heading",
@@ -180,7 +165,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-3-5",
           text: "...възстановява енергията.",
-          subtitle: "5",
           slideIndex: 4,
           position: "center",
           style: "heading",
@@ -188,7 +172,6 @@ export const sequenceConfig: AppConfig = {
         {
           id: "slide-3-6",
           text: "Подарък за теб! Книжка с 1 седмица примерно меню, за да започнеш уверено и лесно.",
-          subtitle: "6",
           slideIndex: 5,
           position: "center",
           style: "heading",
@@ -198,8 +181,8 @@ export const sequenceConfig: AppConfig = {
     {
       id: "static-content",
       type: "static",
-      title: "За кого е Harmony Програма?",
-      description: "...",
+      title: "Как да започнеш?",
+      description: "Промени живота си още днес!",
       framePrefix: "",
       totalFrames: 0,
       frameExtension: "",
@@ -208,19 +191,19 @@ export const sequenceConfig: AppConfig = {
       textSlides: [
         {
           id: "static-1",
-          text: "За хора с наднормено тегло;",
+          text: "Обади се на 089 8800456",
         },
         {
           id: "static-2",
-          text: "За хора с болки в ставите и хронични възпаления;",
+          text: "Заяви своя персонален тест",
         },
         {
           id: "static-3",
-          text: "За всеки, който иска индивидуално решение, а не поредната диета;",
+          text: "Вземи своя план и подарък меню",
         },
         {
           id: "static-4",
-          text: "За хора, които искат трайна, но не доживотна промяна.",
+          text: "https://dietologix.com",
         },
       ],
     },
