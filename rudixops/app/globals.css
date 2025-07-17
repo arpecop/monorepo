@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS for frosted glass and background image */
+.frosted-glass {
+  background-color: rgba(25, 25, 25, 0.6); /* Darker, slightly more opaque transparent background */
+  backdrop-filter: blur(10px) saturate(180%); /* Frosted effect */
+  -webkit-backdrop-filter: blur(10px) saturate(180%); /* For Safari */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+
+/* Solid gray sidebar */
+.sidebar-solid {
+  background-color: rgba(55, 65, 81, 0.95); /* Solid gray background */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars from background image */
+}
+
+body {
+  background-image: url("/placeholder.svg?height=1080&width=1920"); /* Placeholder background image */
+  background-color: #1D0441;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: hsl(240 4.8% 95.9%); /* Light text for dark theme */
+}
+
+/* Override shadcn colors for a darker, transparent theme */
+:root {
+  
+  --foreground: 240 4.8% 95.9%; /* Light text */
+  --card: transparent; /* Make card background transparent */
+  --card-foreground: 240 4.8% 95.9%; /* Light text */
+  --popover: transparent; /* Make popover background transparent */
+  --popover-foreground: 240 4.8% 95.9%; /* Light text */
+  --primary: 240 5.9% 10%; /* Dark primary for buttons etc. */
+  --primary-foreground: 0 0% 98%; /* Light text on primary */
+  --secondary: 240 3.7% 15.9%; /* Dark secondary */
+  --secondary-foreground: 240 4.8% 95.9%; /* Light text on secondary */
+  --muted: 240 3.7% 15.9%; /* Dark muted */
+  --muted-foreground: 240 5% 64.9%; /* Muted text */
+  --accent: 240 3.7% 15.9%; /* Dark accent */
+  --accent-foreground: 240 4.8% 95.9%; /* Light text on accent */
+  --destructive: 0 72.2% 50.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%; /* Dark border */
+  --input: 240 3.7% 15.9%; /* Dark input border */
+  --ring: 217.2 91.2% 59.8%;
+  --radius: 0.5rem;
+
+  /* Sidebar specific overrides */
+  --sidebar-background: transparent;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+.dark {
+  --background: transparent;
+  --foreground: 240 4.8% 95.9%;
+  --card: transparent;
+  --card-foreground: 240 4.8% 95.9%;
+  --popover: transparent;
+  --popover-foreground: 240 4.8% 95.9%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 240 4.8% 95.9%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 240 4.8% 95.9%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 217.2 91.2% 59.8%;
+
+  /* Sidebar specific overrides */
+  --sidebar-background: transparent;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+}
