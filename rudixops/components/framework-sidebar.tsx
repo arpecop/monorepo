@@ -33,7 +33,7 @@ export function FrameworkSidebar({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute left-12 top-0 bottom-0 w-1/2 sidebar-solid z-10 flex flex-col">
+    <div className="absolute left-12 top-0 bottom-0 w-1/2 bg-black/20 z-10 flex flex-col">
       {/* Sidebar Header */}
       <div className="flex items-center justify-between p-4">
         <h2 className="text-sm font-semibold text-white">Framework Explorer</h2>

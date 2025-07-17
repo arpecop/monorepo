@@ -7,13 +7,13 @@
   background-color: rgba(25, 25, 25, 0.6); /* Darker, slightly more opaque transparent background */
   backdrop-filter: blur(10px) saturate(180%); /* Frosted effect */
   -webkit-backdrop-filter: blur(10px) saturate(180%); /* For Safari */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+  
 }
 
 /* Solid gray sidebar */
 .sidebar-solid {
   background-color: rgba(55, 65, 81, 0.95); /* Solid gray background */
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  
 }
 
 html,
@@ -32,6 +32,26 @@ body {
   background-position: center;
   background-attachment: fixed;
   color: hsl(240 4.8% 95.9%); /* Light text for dark theme */
+}
+
+/* Custom dark-themed scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555; /* Darker thumb */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777; /* Lighter thumb on hover */
 }
 
 /* Override shadcn colors for a darker, transparent theme */
