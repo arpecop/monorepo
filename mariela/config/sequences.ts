@@ -52,7 +52,7 @@ export const sequenceConfig: AppConfig = {
       scrollMultiplier: 300,
       totalSlides: 2,
       preloadAhead: 15,
-      startFrame: 50,
+      // startFrame: 50,
       showDevInfo: false,
       overlayClassName: "bg-black/50",
       textSlides: [
