@@ -21,7 +21,7 @@ export function Header() {
         {/* Main Header */}
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 bg-amber-200">
+          <Link href="/" className="flex items-center space-x-2">
             <div className="bg-slate-900   px-3 py-2 rounded font-bold text-xl relative">
               <span className="text-white absolute top-2 left-3 text-3xlfont-playfair">
                 re

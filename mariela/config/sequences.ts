@@ -13,8 +13,8 @@ export const sequenceConfig: AppConfig = {
   sequences: [
     {
       id: "main-sequence1",
-      framePrefix: "spag_",
-      totalFrames: 50,
+      framePrefix: "orange_",
+      totalFrames: 93,
       frameExtension: "jpg",
       title: "Пътят към Здравето",
       description: "Открийте балансирана нутрициология за по-добър живот",

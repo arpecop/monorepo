@@ -89,7 +89,6 @@ export function ImageSequenceSection({ config }: ImageSequenceSectionProps) {
     return unsubscribe;
   }, [frameProgress, getCurrentImage, setCurrentFrame, config.totalFrames]);
 
-  const extraclasses = ""; // Removed bg-black/40 and rounded-lg
   const getPositionClasses = (position: TextSlide["position"]) => {
     switch (position) {
       case "left":
