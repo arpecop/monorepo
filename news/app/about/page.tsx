@@ -111,7 +111,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4">
@@ -153,15 +153,9 @@ export default function AboutPage() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">Integrity</Badge>
-                  <Badge variant="secondary">
-                    Accuracy
-                  </Badge>
-                  <Badge variant="secondary">
-                    Transparency
-                  </Badge>
-                  <Badge variant="secondary">
-                    Independence
-                  </Badge>
+                  <Badge variant="secondary">Accuracy</Badge>
+                  <Badge variant="secondary">Transparency</Badge>
+                  <Badge variant="secondary">Independence</Badge>
                 </div>
               </div>
               <div>
@@ -198,7 +192,9 @@ export default function AboutPage() {
                     <h3 className="text-xl font-semibold text-foreground mb-3">
                       {achievement.title}
                     </h3>
-                    <p className="text-muted-foreground">{achievement.description}</p>
+                    <p className="text-muted-foreground">
+                      {achievement.description}
+                    </p>
                   </CardContent>
                 </Card>
               ))}
@@ -263,7 +259,7 @@ export default function AboutPage() {
       </section>
 
       {/* History Section */}
-      <section className="py-16 bg-background">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-foreground text-center mb-12">

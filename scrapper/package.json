@@ -1,0 +1,28 @@
+{
+  "name": "scrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bun server.ts",
+    "scrape": "bun scraper.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.9.0",
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "bun-types": "^1.2.19",
+    "jsdom": "^26.1.0",
+    "tldts": "^7.0.10",
+    "tough-cookie": "^5.1.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "html-encoding-sniffer": "^4.0.0",
+    "postgres": "^3.4.7"
+  }
+}

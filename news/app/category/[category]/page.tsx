@@ -9,7 +9,7 @@ export default function CategoryPage({
   console.log(categoryName);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Category Header */}
 
       {/* Featured Article */}

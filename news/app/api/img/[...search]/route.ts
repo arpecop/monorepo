@@ -4,10 +4,10 @@ import Nano from "nano";
 
 // Determine if in development mode for host configuration
 const dev = process.env.NODE_ENV === "development";
-const host = dev ? "192.168.0.102" : "couchdb";
+const host = dev ? "192.168.100.102" : "host.docker.internal";
 
 // Initialize NanoDB
-const n = Nano(`http://couch:${process.env.COUCHDB_PASSWORD}@${host}:5984`);
+const n = Nano(`http://couch:${process.env.GOOGLE_CLIENT_SECRET}@${host}:5984`);
 
 const db = n.db.use("images");
 
@@ -25,7 +25,6 @@ export async function GET(
   const slugArray = params.search;
   const slug = slugArray.join("/");
   const slugt = slug.replace(".jpg", "").replace(/-/g, "%20").replace("q/", "");
-  console.log({ slugArray, slugt });
 
   // Decode the Base64 string into a Buffer
   const transparentBuffer = Buffer.from(TRANSPARENT_PNG_BASE64, "base64");

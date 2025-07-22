@@ -99,7 +99,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -126,7 +126,9 @@ export default function DashboardPage() {
               <div className="text-2xl font-bold text-green-600 mb-2">
                 {readingStats.timeSpent}
               </div>
-              <p className="text-sm text-muted-foreground">Time Spent Reading</p>
+              <p className="text-sm text-muted-foreground">
+                Time Spent Reading
+              </p>
             </CardContent>
           </Card>
           <Card>

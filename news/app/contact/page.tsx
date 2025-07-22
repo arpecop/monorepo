@@ -37,7 +37,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-primary text-primary-foreground py-16">
         <div className="container mx-auto px-4">
@@ -246,7 +246,9 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <div className="bg-muted h-64 rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">Interactive Map Placeholder</p>
+                  <p className="text-muted-foreground">
+                    Interactive Map Placeholder
+                  </p>
                 </div>
                 <p className="text-sm text-muted-foreground mt-4">
                   Our headquarters is located in the heart of Media City, easily

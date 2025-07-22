@@ -29,7 +29,7 @@ export const sequenceConfig: AppConfig = {
         },
         {
           id: "slide-1-2",
-          text: "Harmony Програм е персонализирана програма за хранене, която започва с анализ на коса, за да разкрие кои храни възпаляват твоето тяло.",
+          text: "програма Harmony е персонализирана програма за хранене, която започва с анализ на коса, за да разкрие кои храни възпаляват твоето тяло.",
           slideIndex: 1,
           position: "center",
           style: "heading",
@@ -203,7 +203,7 @@ export const sequenceConfig: AppConfig = {
         },
         {
           id: "static-4",
-          text: "https://dietologix.com",
+          text: "contact@dietologix.com",
         },
       ],
     },

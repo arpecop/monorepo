@@ -26,7 +26,7 @@ export default async function HomePage() {
   const { title, date, cat, text, genid } = data[0];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="mb-4">
         <div className="container mx-auto px-4 py-8">
@@ -76,9 +76,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <NewsItems posts={data} />
-
+      <div className="container mx-auto p-4">
+        <NewsItems posts={data} />
+      </div>
       {/* Latest News Section */}
     </div>
   );

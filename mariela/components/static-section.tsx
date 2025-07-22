@@ -13,7 +13,7 @@ export function StaticSection() {
   }
 
   return (
-    <div className="z-20">
+    <div id="contact" className="z-20">
       <motion.section
         id="static-content"
         className="min-h-screen bg-white text-black flex items-center justify-center"
