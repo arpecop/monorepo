@@ -6,6 +6,7 @@ import { db, type NewsItem } from "@/app/_lib/sql";
 import { Clock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head";
 
 export default async function HomePage() {
   const data =
@@ -27,6 +28,9 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <Head>
+        <meta name="google-adsense-account" content="ca-pub-5476404733919333" />
+      </Head>
       {/* Hero Section */}
       <section className="mb-4">
         <div className="container mx-auto px-4 py-8">

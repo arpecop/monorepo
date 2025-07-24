@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/app/_lib/sql";
+import Link from "next/link";
 
 // import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -16,7 +17,7 @@ import {
   Twitter,
   Linkedin,
 } from "lucide-react";
-import Image from "next/image";
+
 type D = [
   {
     id: number;
@@ -100,7 +101,7 @@ export default async function ArticlePage({
                 <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-playfair">
                   {article.title}
                 </h1>
-                <p className="text-lg text-muted-foreground mb-6">excerpt</p>
+
                 <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <div className="flex items-center space-x-2">
                     <img
@@ -123,18 +124,6 @@ export default async function ArticlePage({
                 </div>
               </header>
 
-              {/* Article Image */}
-              <div className="mb-8">
-                <Image
-                  src={article.image || "/placeholder.svg"}
-                  alt={article.title}
-                  width={1200}
-                  height={500}
-                  className="rounded-lg shadow-lg object-cover w-full"
-                />
-              </div>
-
-              {/* Article Content */}
               <div
                 className="prose prose-lg max-w-none text-foreground"
                 dangerouslySetInnerHTML={{ __html: article.content }}
@@ -170,11 +159,6 @@ export default async function ArticlePage({
 
             {/* Comments Section */}
             <section className="mt-12">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
-                Comments 1
-              </h2>
-              <div className="space-y-6">comments</div>
-
               {/* Comment Form */}
               <div className="mt-8">
                 <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -199,51 +183,26 @@ export default async function ArticlePage({
           <aside className="lg:col-span-4">
             <div className="sticky top-24 space-y-8">
               {/* Author Box */}
-              <div className="p-6 bg-muted rounded-lg text-center">
-                img
-                <h3 className="text-xl font-semibold text-foreground">
-                  dddauthor
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Senior Environmental Correspondent
-                </p>
-                <p className="text-foreground/80 text-sm">
-                  Sarah Johnson is an award-winning journalist with over 15
-                  years of experience covering environmental policy and climate
-                  change.
-                </p>
-                <Button variant="outline" size="sm" className="mt-4">
-                  View Profile
-                </Button>
-              </div>
 
               {/* Related Articles */}
               <div>
-                <h3 className="text-xl font-bold text-foreground mb-4">
+                <h3 className="text-xl font-bold text-foreground border-b">
                   Related Articles
                 </h3>
-                <div className="space-y-4">related</div>
+                <div className="space-y-2">
+                  {relatedArticles.map((article) => (
+                    <Link
+                      key={article.genid}
+                      href={`/post/${article.genid}`}
+                      className="py-2 bg-primary/10  hover:bg-primary/20 transition-colors border-b font-bold flex text-sm"
+                    >
+                      {article.title.replace(/#/g, "").replace(/\*/g, "")}
+                    </Link>
+                  ))}
+                </div>
               </div>
 
               {/* Newsletter Signup */}
-              <div className="p-6 bg-primary/10 rounded-lg">
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Stay Informed
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Subscribe to our newsletter for the latest news and updates.
-                </p>
-                <form className="flex space-x-2">
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    className="w-full p-2 border rounded-lg bg-transparent"
-                  />
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    Subscribe
-                  </Button>
-                </form>
-              </div>
             </div>
           </aside>
         </div>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbo && npm run deploy",
+    "build": "next build --turbo && npm run deploy && ssh rudix@bee.local 'sudo docker restart renewz'",
     "deploy": "./deploy.sh",
     "start": "next start",
     "lint": "next lint",
