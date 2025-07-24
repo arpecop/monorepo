@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Translator Chat</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic styling for the body and overall layout */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        /* Main chat container styling */
+        .chat-container {
+            background-color: #ffffff; /* White background */
+            border-radius: 1rem; /* Rounded corners (rounded-xl) */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadow (shadow-xl) */
+            width: 100%;
+            max-width: 600px; /* Max width for desktop */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Ensures rounded corners are respected */
+            min-height: 70vh; /* Minimum height */
+            max-height: 90vh; /* Maximum height */
+        }
+        /* Chat header styling */
+        .chat-header {
+            background-color: #4f46e5; /* Indigo-600 */
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+        /* Chat messages display area */
+        .chat-messages {
+            flex-grow: 1; /* Takes available space */
+            padding: 1.5rem;
+            overflow-y: auto; /* Enables scrolling */
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Space between messages (space-y-4) */
+        }
+        /* Individual message bubble styling */
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+        .message-bubble {
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem; /* Rounded corners (rounded-lg) */
+            word-wrap: break-word; /* Prevents long words from overflowing */
+        }
+        .message-sender {
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500; /* font-medium */
+            margin-bottom: 0.25rem; /* Space below sender name */
+            color: #64748b; /* Slate-500 */
+        }
+
+        /* Styling for user's messages */
+        .user-message-wrapper {
+            align-self: flex-end; /* Aligns to the right */
+            align-items: flex-end;
+        }
+        .user-message-bubble {
+            background-color: #4f46e5; /* Indigo-600 */
+            color: white;
+            border-bottom-right-radius: 0.25rem; /* Smaller radius on one corner for visual distinction */
+        }
+        .user-message-sender {
+            text-align: right;
+            color: #4338ca; /* Darker indigo for user sender name */
+        }
+
+        /* Styling for AI's messages */
+        .ai-message-wrapper {
+            align-self: flex-start; /* Aligns to the left */
+            align-items: flex-start;
+        }
+        .ai-message-bubble {
+            background-color: #e0e7ff; /* Indigo-100 */
+            color: #1e293b; /* Slate-800 */
+            border-bottom-left-radius: 0.25rem; /* Smaller radius on one corner for visual distinction */
+        }
+        .ai-message-sender {
+            text-align: left;
+            color: #334155; /* Slate-700 for AI sender name */
+        }
+
+        /* Input area styling */
+        .chat-input-area {
+            display: flex;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0; /* Top border (border-t border-slate-200) */
+            gap: 0.75rem; /* Space between input and button (space-x-3) */
+            align-items: center;
+        }
+        /* Text input field styling */
+        .chat-input {
+            flex-grow: 1; /* Takes available space */
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1; /* Border (border-slate-300) */
+            border-radius: 0.75rem; /* Rounded corners (rounded-lg) */
+            outline: none; /* Removes default focus outline */
+            font-size: 1rem;
+        }
+        .chat-input:focus {
+            border-color: #4f46e5; /* Indigo-600 on focus */
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); /* Ring on focus */
+        }
+        /* Send button styling */
+        .send-button {
+            background-color: #4f46e5; /* Indigo-600 */
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem; /* Rounded corners (rounded-lg) */
+            font-weight: 500; /* font-medium */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out; /* Smooth hover effect */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem; /* Space between icon and text */
+        }
+        .send-button:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+        }
+        /* Username input area styling */
+        .username-input-area {
+            padding: 1rem 1.5rem;
+            background-color: #f8fafc; /* Light slate background */
+            border-bottom: 1px solid #e2e8f0; /* Bottom border */
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .username-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem; /* rounded-md */
+            outline: none;
+        }
+        .username-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        /* Loading indicator styling */
+        .loading-indicator {
+            display: none; /* Hidden by default */
+            text-align: center;
+            padding: 1rem;
+            color: #64748b; /* Slate-500 */
+        }
+        /* Error message styling */
+        .error-message {
+            color: #ef4444; /* Red-500 */
+            text-align: center;
+            padding: 0.5rem;
+        }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            .chat-container {
+                min-height: 90vh; /* Taller on mobile */
+                max-height: 95vh;
+                margin: 0;
+            }
+            .chat-input-area {
+                flex-direction: column; /* Stack input and button vertically */
+                gap: 0.5rem;
+            }
+            .send-button {
+                width: 100%; /* Full width button on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            OpenAI Translator Chat
+        </div>
+
+        <div class="username-input-area">
+            <label for="usernameInput" class="text-sm font-medium text-slate-700">Enter your Username:</label>
+            <input type="text" id="usernameInput" class="username-input" placeholder="e.g., JohnDoe" autocomplete="off">
+            <p class="text-xs text-slate-500">Your username will be associated with your messages.</p>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+            <!-- Initial AI message -->
+            <div class="ai-message-wrapper ai-message-start">
+                <div class="message-sender ai-message-sender">Translator Bot</div>
+                <div class="ai-message-bubble message-bubble">
+                    Hello! Please enter your username above. I'm ready to translate!
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading-indicator">
+            Thinking...
+        </div>
+        <div id="errorMessage" class="error-message">
+            <!-- Error messages will be displayed here -->
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="userInput" class="chat-input" placeholder="Type your message...">
+            <button id="sendButton" class="send-button">
+                <!-- SVG icon for send button -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.941 109.86 109.86 0 0 0 14.48-9.025c.07-.07.14-.139.21-.209M21.75 12c0 .18-.004.36-.012.538-.07.07-.14.139-.21.209a109.86 109.86 0 0 0-14.48 9.025.75.75 0 0 1-.926-.941l2.432-7.905H13.5a.75.75 0 0 0 0-1.5H4.984l-2.432-7.905a.75.75 0 0 1 .926-.941 109.86 109.86 0 0 0 14.48 9.025c.07.07.14.139.21.209A109.86 109.86 0 0 0 21.75 12Z" />
+                </svg>
+                Send
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hardcoded OpenAI API Key (for internal use as requested)
+            // WARNING: Hardcoding API keys in client-side code is not recommended for production.
+            const OPENAI_API_KEY = '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';
+
+            // Hardcoded Assistant ID and Thread ID as requested
+            const ASSISTANT_ID = 'asst_LsTLPqsvBby65A6Q6ImwTZdu';
+            const THREAD_ID = 'thread_6aqit9DCe0Y107xBDuNsgkvd';
+
+            // Get references to DOM elements
+            const usernameInput = document.getElementById('usernameInput');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatMessages = document.getElementById('chatMessages');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+
+            let currentUsername = localStorage.getItem('openai_translator_username');
+            // No longer need displayedMessageIds as we clear and re-render
+            let isProcessingMessage = false; // Flag to prevent polling during active send
+
+            // Initialize username input with stored value if available
+            if (currentUsername) {
+                usernameInput.value = currentUsername;
+            }
+
+            /**
+             * Appends a message bubble to the chat display.
+             * @param {string} senderType - 'user' or 'ai'.
+             * @param {string} senderName - The name to display (e.g., username, 'Translator Bot').
+             * @param {string} text - The message content.
+             */
+            function appendMessage(senderType, senderName, text) {
+                const messageWrapper = document.createElement('div');
+                messageWrapper.classList.add('message-wrapper');
+                messageWrapper.classList.add(`${senderType}-message-wrapper`);
+
+                const senderDiv = document.createElement('div');
+                senderDiv.classList.add('message-sender', `${senderType}-message-sender`);
+                senderDiv.textContent = senderName;
+
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add('message-bubble', `${senderType}-message-bubble`);
+                messageBubble.textContent = text;
+
+                messageWrapper.appendChild(senderDiv);
+                messageWrapper.appendChild(messageBubble);
+                chatMessages.appendChild(messageWrapper);
+
+                // Scroll to the bottom to show the latest message
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            /**
+             * Shows or hides the loading indicator.
+             * @param {boolean} show - True to show, false to hide.
+             */
+            function showLoading(show) {
+                loadingIndicator.style.display = show ? 'block' : 'none';
+            }
+
+            /**
+             * Displays a temporary error message.
+             * @param {string} message - The error message to display.
+             */
+            function showErrorMessage(message) {
+                errorMessage.textContent = message;
+                // Clear the error message after 5 seconds
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                }, 5000);
+            }
+
+            // Event listeners for sending messages
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Save username to localStorage on input change
+            usernameInput.addEventListener('input', () => {
+                currentUsername = usernameInput.value.trim();
+                localStorage.setItem('openai_translator_username', currentUsername);
+            });
+
+            /**
+             * Polls the run status until it's completed or fails.
+             * @param {string} threadId - The ID of the thread.
+             * @param {string} runId - The ID of the run to poll.
+             * @returns {Promise<void>} Resolves when the run is completed.
+             */
+            async function pollRunStatus(threadId, runId) {
+                return new Promise((resolve, reject) => {
+                    const interval = setInterval(async () => {
+                        try {
+                            const response = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                                    'OpenAI-Beta': 'assistants=v2',
+                                }
+                            });
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                clearInterval(interval);
+                                throw new Error(errorData.error ? errorData.error.message : `Failed to poll run status: ${response.status}`);
+                            }
+                            const data = await response.json();
+                            console.log('Run status:', data.status);
+
+                            if (data.status === 'completed') {
+                                clearInterval(interval);
+                                resolve();
+                            } else if (['failed', 'cancelled', 'expired'].includes(data.status)) {
+                                clearInterval(interval);
+                                reject(new Error(`Run ended with status: ${data.status}`));
+                            }
+                        } catch (error) {
+                            clearInterval(interval);
+                            reject(error);
+                        }
+                    }, 1000); // Poll every 1 second
+                });
+            }
+
+            /**
+             * Retrieves messages from a thread, limited to the latest 10.
+             * @param {string} threadId - The ID of the thread.
+             * @returns {Promise<Array>} An array of message objects.
+             */
+            async function getMessages(threadId) {
+                // Fetch only the latest 10 messages
+                const response = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages?limit=10`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                        'OpenAI-Beta': 'assistants=v2',
+                    }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error ? errorData.error.message : `Failed to retrieve messages: ${response.status}`);
+                }
+                const data = await response.json();
+                return data.data; // The actual messages are in the 'data' array
+            }
+
+            /**
+             * Fetches all messages from the thread (latest 10) and displays assistant responses.
+             * This function is used for both initial load and continuous polling.
+             */
+            async function fetchAndDisplayAllMessages() {
+                if (isProcessingMessage) {
+                    // Don't poll if a message is currently being sent/processed
+                    return;
+                }
+                try {
+                    const messages = await getMessages(THREAD_ID);
+                    // Clear existing messages and reset displayed IDs to ensure only latest 10 are shown
+                    chatMessages.innerHTML = '';
+                    // Re-initialize displayedMessageIds for the new set of 10 messages
+                    // This is crucial because old messages might be trimmed from the API response
+                    // and we want to re-add them if they are part of the new latest 10.
+                    displayedMessageIds = new Set();
+
+                    // OpenAI API returns messages in reverse chronological order, so reverse for display
+                    messages.reverse();
+
+                    for (const msg of messages) {
+                        if (msg.content && msg.content.length > 0 && msg.content[0].type === 'text') {
+                            const textContent = msg.content[0].text.value;
+                            // Only display assistant messages
+                            if (msg.role === 'assistant') {
+                                appendMessage('ai', 'Translator Bot', `Someone says: ${textContent}`);
+                                displayedMessageIds.add(msg.id); // Add ID to the set
+                            }
+                            // User messages are no longer displayed
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching messages during polling:', error);
+                    // Do not show persistent error messages for polling errors to avoid noise.
+                }
+            }
+
+            /**
+             * Handles sending a message to the OpenAI API and getting a response.
+             */
+            async function sendMessage() {
+                const username = usernameInput.value.trim();
+                const userMessage = userInput.value.trim();
+
+                // Validate inputs
+                if (!username) {
+                    showErrorMessage('Please enter your username.');
+                    return;
+                }
+                if (!userMessage) {
+                    showErrorMessage('Please type a message.');
+                    return;
+                }
+
+                // Set flag to true to pause polling
+                isProcessingMessage = true;
+                showLoading(true); // Show loading indicator
+                showErrorMessage(''); // Clear any previous errors
+
+                // User's message is sent to API but not appended to display here.
+                // It will be part of the thread history but not shown on screen.
+                userInput.value = ''; // Clear input field immediately
+
+                try {
+                    // 1. Add message to the hardcoded thread
+                    const addMessageResponse = await fetch(`https://api.openai.com/v1/threads/${THREAD_ID}/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                            'OpenAI-Beta': 'assistants=v2'
+                        },
+                        body: JSON.stringify({
+                            role: 'user',
+                            content: userMessage
+                        })
+                    });
+                    if (!addMessageResponse.ok) {
+                        const errorData = await addMessageResponse.json();
+                        throw new Error(errorData.error ? errorData.error.message : `Failed to add message to thread: ${addMessageResponse.status}`);
+                    }
+                    const addedMessageData = await addMessageResponse.json();
+                    // We don't add this to displayedMessageIds here because we're not displaying user messages.
+                    console.log('Message added to thread:', THREAD_ID, 'ID:', addedMessageData.id);
+
+                    // 2. Create a run on the hardcoded thread with the hardcoded assistant
+                    const createRunResponse = await fetch(`https://api.openai.com/v1/threads/${THREAD_ID}/runs`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                            'OpenAI-Beta': 'assistants=v2'
+                        },
+                        body: JSON.stringify({
+                            assistant_id: ASSISTANT_ID
+                        })
+                    });
+                    if (!createRunResponse.ok) {
+                        const errorData = await createRunResponse.json();
+                        throw new Error(errorData.error ? errorData.error.message : `Failed to create run: ${createRunResponse.status}`);
+                    }
+                    const runData = await createRunResponse.json();
+                    console.log('Run created:', runData.id);
+
+                    // 3. Poll run status until completed
+                    await pollRunStatus(THREAD_ID, runData.id);
+                    console.log('Run completed.');
+
+                    // 4. Trigger a full refresh to get the latest 10 messages, including the new assistant response
+                    await fetchAndDisplayAllMessages();
+
+                } catch (error) {
+                    console.error('Error in chat process:', error);
+                    showErrorMessage(`Failed to get response: ${error.message}. Please check your API key and network connection.`);
+                    // Display an error message from the bot if something goes wrong
+                    appendMessage('ai', 'Translator Bot', 'Sorry, I encountered an error. Please check the console for details.');
+                } finally {
+                    isProcessingMessage = false; // Reset flag
+                    showLoading(false); // Hide loading indicator
+                }
+            }
+
+            // Initial fetch of messages when the page loads
+            fetchAndDisplayAllMessages();
+
+            // Start polling for new messages every second
+            // The polling function itself checks the `isProcessingMessage` flag
+            setInterval(fetchAndDisplayAllMessages, 1000); // Poll every 1 second
+        });
+    </script>
+</body>
+</html>
