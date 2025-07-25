@@ -1,0 +1,23 @@
+{
+  "name": "monorepo",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/arpecop/monorepo#readme",
+  "bugs": {
+    "url": "https://github.com/arpecop/monorepo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arpecop/monorepo.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
