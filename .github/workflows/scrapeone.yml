@@ -13,14 +13,12 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    # The 'environment' key is used for deployment environments, not for passing variables directly into a job's shell.
-    # If you intend to use a specific deployment environment for this job, then 'environment: ${{ inputs.environment }}' is correct,
-    # but it won't directly make `inputs.environment` available as an environment variable in your shell.
-    # If `inputs.environment` is intended to be the name of a GitHub environment you've configured, this is correct for linking.
-    # However, if you're trying to dynamically pass an environment name that will then be used to fetch variables,
-    # you'd need to adapt how those variables are retrieved or if the job truly depends on a named environment for secrets/variables.
-    # For now, I'll assume you have a configured GitHub Environment.
-    environment: production # Or whatever your environment name is, if you're not getting it from 'inputs'
+    # If this job needs to access secrets from a specific environment (e.g., 'production'),
+    # then specify that environment here. Otherwise, if the secret is at the repository level,
+    # you might not need an 'environment' key unless you have other environment-specific configurations.
+    # For now, I'll keep it general. If your DATABASE_URL secret is tied to a specific environment,
+    # ensure that environment is correctly configured in your repository settings.
+    # environment: production # Uncomment and specify if your secret is scoped to an environment
 
     strategy:
       matrix:
@@ -35,11 +33,15 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm install ts-node -g && which ts-node
-    - name: Set DATABASE_URL environment variable and run scrapper
+    - name: Set DATABASE_URL secret and run scrapper
       env:
-        DATABASE_URL: ${{ vars.DATABASE_URL }}
+        # Correctly access the secret using `secrets` context
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
-        echo "DATABASE_URL is set." # Optional: Verify it's set
+        echo "Attempting to use DATABASE_URL."
+        # Note: The value of DATABASE_URL will be masked in logs for security.
+        # You should not echo the actual secret value. The "DATABASE_URL is set"
+        # from your previous output was likely from your own echo, not GitHub's internal check.
         cd ./bitpazar/scrapper
         ls -lah
         npm install
