@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom";
 
 export interface Property {
-  id: string | null;
+  url_slug: string | null;
   title: string | null;
   price: number | null;
   currency: string | null;
@@ -72,7 +72,6 @@ export function parseProperties(
   const properties: Property[] = [];
 
   propertyElements.forEach((element) => {
-    const id = element.getAttribute("id");
     const titleElement = element.querySelector("h4");
     const priceElement = element.querySelector('[data-testid="ad-price"]');
     const locationDateElement = element.querySelector(
@@ -81,16 +80,41 @@ export function parseProperties(
     const imageElement = element.querySelector("img");
     const linkElement = element.querySelector("a");
     const relativeUrl = linkElement?.getAttribute("href");
+    const detailsUrl = relativeUrl ? `https://www.olx.bg${relativeUrl}` : null;
 
-    const priceText = priceElement?.textContent?.trim();
+    let url_slug = null;
+    if (detailsUrl) {
+      url_slug = detailsUrl.replace('https://www.olx.bg/d/ad/', '').replace('.html', '');
+    }
+
+    let priceText = priceElement?.textContent?.trim();
     let price: number | null = null;
     let currency: string | null = null;
 
     if (priceText) {
-      const priceMatch = priceText.match(/([\d\s]+)(.*)/);
+      // Clean up the price text by removing the CSS part
+      const cssIndex = priceText.indexOf(".css-");
+      if (cssIndex !== -1) {
+        priceText = priceText.substring(0, cssIndex);
+      }
+
+      // Now parse the cleaned text
+      const priceMatch = priceText.match(/([\d\s.,]+)/);
       if (priceMatch) {
-        price = parseInt(priceMatch[1].replace(/\s/g, ""), 10) || null;
-        currency = priceMatch[2].trim() || null;
+        const priceString = priceMatch[0].replace(/\s/g, "").replace(",", ".");
+        price = parseFloat(priceString) || null;
+      }
+
+      if (priceText.includes("лв")) {
+        currency = "лв.";
+      }
+
+      if (priceText.toLowerCase().includes("по договаряне")) {
+        if (currency) {
+          currency += " По договаряне";
+        } else {
+          currency = "По договаряне";
+        }
       }
     }
 
@@ -114,7 +138,7 @@ export function parseProperties(
     const date = formatPostgresDate(rawDate);
 
     properties.push({
-      id,
+      url_slug,
       title: titleElement?.textContent?.trim() || null,
       price,
       currency,
@@ -122,7 +146,7 @@ export function parseProperties(
       district,
       date,
       imageUrl: imageElement?.getAttribute("src") || null,
-      detailsUrl: relativeUrl ? `https://www.olx.bg${relativeUrl}` : null,
+      detailsUrl: detailsUrl,
       category: categoryName,
       categoryId: categoryId,
       type: categoryType,
@@ -131,4 +155,16 @@ export function parseProperties(
   });
 
   return properties;
+}
+
+export function parseAdDescription(html: string): string | null {
+  try {
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+    const descriptionElement = document.querySelector('[data-cy="ad_description"] .css-19duwlz');
+    return descriptionElement?.textContent?.trim() || null;
+  } catch (error) {
+    console.error("Error parsing ad description:", error);
+    return null;
+  }
 }

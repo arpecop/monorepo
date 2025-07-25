@@ -1,12 +1,12 @@
 {
   "name": "scrapper",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "bun server.ts",
-    "scrape": "bun scraper.ts"
+    "start": "ts-node action.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,10 +14,11 @@
   "packageManager": "pnpm@10.9.0",
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "bun-types": "^1.2.19",
+    "@types/node": "^24.1.0",
     "jsdom": "^26.1.0",
     "tldts": "^7.0.10",
     "tough-cookie": "^5.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
