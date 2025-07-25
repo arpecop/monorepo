@@ -28,8 +28,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm install ts-node -g && which ts-node
-    - run: cd ./bitpazar/scrapper && ls -lah
-    - run: cd ./bitpazar/scrapper && npm install && npx tsx ./action.ts
     - name: Verify environment
       run : |
         echo "Environment variable TEST_VAR: ${{ vars.DATABASE_URL }}"
+    - run: cd ./bitpazar/scrapper && ls -lah
+    - run: cd ./bitpazar/scrapper && npm install && npx tsx ./action.ts
