@@ -28,4 +28,4 @@ jobs:
         cache: 'npm'
     - run: npm install ts-node -g && which ts-node
     - run: cd ./bitpazar/scrapper && ls -lah
-    - run: cd ./bitpazar/scrapper && npm install && ts-node ./action.ts
+    - run: cd ./bitpazar/scrapper && npm install && npx tsx ./action.ts
