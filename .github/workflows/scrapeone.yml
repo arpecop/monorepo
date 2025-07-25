@@ -30,4 +30,4 @@ jobs:
     - run: cd ./bitpazar/scrapper && ls -lah
     - run: npm install --save
     - run: printenv
-    - run: pwd && ls -lah && ts-node ./action.ts
+    - run: cd ./bitpazar/scrapper && ts-node ./action.ts
