@@ -13,7 +13,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    # The 'environment' key is used for deployment environments, not for passing variables directly into a job's shell.
+    # If you intend to use a specific deployment environment for this job, then 'environment: ${{ inputs.environment }}' is correct,
+    # but it won't directly make `inputs.environment` available as an environment variable in your shell.
+    # If `inputs.environment` is intended to be the name of a GitHub environment you've configured, this is correct for linking.
+    # However, if you're trying to dynamically pass an environment name that will then be used to fetch variables,
+    # you'd need to adapt how those variables are retrieved or if the job truly depends on a named environment for secrets/variables.
+    # For now, I'll assume you have a configured GitHub Environment.
+    environment: production # Or whatever your environment name is, if you're not getting it from 'inputs'
 
     strategy:
       matrix:
@@ -28,6 +35,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm install ts-node -g && which ts-node
-    - run: DATABASE_URL = ${{ vars.DATABASE_URL }}
-    - run: cd ./bitpazar/scrapper && ls -lah
-    - run: cd ./bitpazar/scrapper && npm install && npx tsx ./action.ts
+    - name: Set DATABASE_URL environment variable and run scrapper
+      env:
+        DATABASE_URL: ${{ vars.DATABASE_URL }}
+      run: |
+        echo "DATABASE_URL is set." # Optional: Verify it's set
+        cd ./bitpazar/scrapper
+        ls -lah
+        npm install
+        npx tsx ./action.ts
