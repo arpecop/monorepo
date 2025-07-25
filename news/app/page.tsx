@@ -31,7 +31,7 @@ export default async function HomePage() {
       <Head>
         <meta name="google-adsense-account" content="ca-pub-5476404733919333" />
       </Head>
-      {/* Hero Section */}
+      {/* Hero Section */}ddddd
       <section className="mb-4">
         <div className="container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
