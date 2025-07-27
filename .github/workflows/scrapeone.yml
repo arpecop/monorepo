@@ -11,12 +11,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    # If this job needs to access secrets from a specific environment (e.g., 'production'),
-    # then specify that environment here. Otherwise, if the secret is at the repository level,
-    # you might not need an 'environment' key unless you have other environment-specific configurations.
-    # For now, I'll keep it general. If your DATABASE_URL secret is tied to a specific environment,
-    # ensure that environment is correctly configured in your repository settings.
-    # environment: production # Uncomment and specify if your secret is scoped to an environment
+
 
     strategy:
       matrix:
