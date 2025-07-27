@@ -1,0 +1,41 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI olx
+
+on:
+  schedule:
+    - cron: "*/8 * * * *"
+
+jobs:
+  test_schedule:
+
+    runs-on: ubuntu-latest
+
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm install ts-node -g && which ts-node
+    - name: Set DATABASE_URL secret and run scrapper
+      env:
+        # Correctly access the secret using `secrets` context
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      run: |
+        echo "Attempting to use DATABASE_URL."
+        # Note: The value of DATABASE_URL will be masked in logs for security.
+        # You should not echo the actual secret value. The "DATABASE_URL is set"
+        # from your previous output was likely from your own echo, not GitHub's internal check.
+        cd ./bitpazar/scrapper
+        ls -lah
+        npm install
+        npx tsx ./main.ts
