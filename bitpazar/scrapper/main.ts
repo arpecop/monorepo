@@ -259,6 +259,96 @@ async function scrapeDescriptions(sql: postgres.Sql) {
   console.log("--- Description Scraping Finished ---");
 }
 
+// --- Embedding Processing Logic ---
+
+type ProductEmbeddingInfo = {
+  url_slug: string;
+  title: string | null;
+  description: string | null;
+};
+
+async function getEmbedding(text: string): Promise<number[] | null> {
+  try {
+    const response = await fetch("http://130.204.65.82:11434/api/embeddings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "nomic-embed-text",
+        prompt: text,
+      }),
+    });
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Embedding API failed with status: ${response.status}`, errorBody);
+      return null;
+    }
+    const data = await response.json();
+    return data.embedding;
+  } catch (error) {
+    console.error("Failed to get embedding:", error);
+    return null;
+  }
+}
+
+async function processEmbeddings(sql: postgres.Sql) {
+  console.log("\n--- Starting Embedding Processing ---");
+
+  const productsToProcess = await sql<ProductEmbeddingInfo[]>`
+    SELECT url_slug, title, description
+    FROM products.products
+    WHERE description IS NOT NULL AND processed = false
+    LIMIT 300
+  `;
+
+  if (productsToProcess.length === 0) {
+    console.log("No new products to process for embeddings.");
+    return;
+  }
+
+  console.log(`Found ${productsToProcess.length} products to process for embeddings.`);
+
+  const embeddingPromises = productsToProcess.map(async (product) => {
+    const textToEmbed = `${product.title || ""} ${product.description || ""}`.trim();
+
+    if (!textToEmbed) {
+      await sql`
+        UPDATE products.products
+        SET processed = true
+        WHERE url_slug = ${product.url_slug}
+      `;
+      return;
+    }
+
+    const embedding = await getEmbedding(textToEmbed);
+
+    if (embedding) {
+      const embeddingString = `[${embedding.join(",")}]`;
+      await sql`
+        UPDATE products.products
+        SET
+          embed = ${embeddingString},
+          processed = true
+        WHERE
+          url_slug = ${product.url_slug}
+      `;
+      console.log(`  ✅ Embedded: ${product.title || product.url_slug}`);
+      console.log(`     First vector: ${embedding[0]}`);
+    } else {
+      await sql`
+        UPDATE products.products
+        SET processed = true
+        WHERE url_slug = ${product.url_slug}
+      `;
+      console.log(`  ❌ Failed to embed: ${product.title || product.url_slug}`);
+    }
+  });
+
+  await Promise.all(embeddingPromises);
+
+  console.log("--- Embedding Processing Finished ---");
+}
+
+
 // --- Main Execution ---
 
 async function main() {
@@ -268,6 +358,7 @@ async function main() {
 
   try {
     await scrapeCategories(sql);
+    await processEmbeddings(sql);
     await scrapeDescriptions(sql);
   } finally {
     await sql.end();
