@@ -38,4 +38,4 @@ jobs:
         cd ./bitpazar/scrapper
         ls -lah
         npm install
-        npx tsx ./action.ts
+        npx tsx ./main.ts
