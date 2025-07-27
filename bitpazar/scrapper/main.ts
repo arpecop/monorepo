@@ -232,7 +232,7 @@ async function scrapeDescriptions(sql: postgres.Sql) {
     SELECT title, details_url, url_slug
     FROM products.products
     WHERE description_scraped_at IS NULL
-    LIMIT 20
+    LIMIT 2000
   `;
 
   if (products.length === 0) {
