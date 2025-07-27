@@ -7,55 +7,12 @@ export interface Property {
   currency: string | null;
   city: string | null;
   district: string | null;
-  date: string | null;
   imageUrl: string | null;
   detailsUrl: string | null;
   category: string;
   categoryId: number;
   type: string;
   slug: string;
-}
-
-const monthMap: { [key: string]: string } = {
-  януари: "01",
-  февруари: "02",
-  март: "03",
-  април: "04",
-  май: "05",
-  юни: "06",
-  юли: "07",
-  август: "08",
-  септември: "09",
-  октомври: "10",
-  ноември: "11",
-  декември: "12",
-};
-
-function formatPostgresDate(dateString: string | null): string | null {
-  if (!dateString) return null;
-
-  const today = new Date();
-  if (dateString.includes("днес")) {
-    return today.toISOString().split("T")[0];
-  }
-
-  if (dateString.includes("вчера")) {
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    return yesterday.toISOString().split("T")[0];
-  }
-
-  const parts = dateString.replace(" г.", "").split(" ");
-  if (parts.length === 3) {
-    const day = parts[0].padStart(2, "0");
-    const month = monthMap[parts[1]];
-    const year = parts[2];
-    if (day && month && year) {
-      return `${year}-${month}-${day}`;
-    }
-  }
-
-  return dateString; // Fallback to original string if parsing fails
 }
 
 export function parseProperties(
@@ -84,7 +41,9 @@ export function parseProperties(
 
     let url_slug = null;
     if (detailsUrl) {
-      url_slug = detailsUrl.replace('https://www.olx.bg/d/ad/', '').replace('.html', '');
+      url_slug = detailsUrl
+        .replace("https://www.olx.bg/d/ad/", "")
+        .replace(".html", "");
     }
 
     let priceText = priceElement?.textContent?.trim();
@@ -133,10 +92,6 @@ export function parseProperties(
       }
     }
 
-    const rawDate =
-      locationDateText?.[1]?.replace("Обновено на ", "")?.trim() || null;
-    const date = formatPostgresDate(rawDate);
-
     properties.push({
       url_slug,
       title: titleElement?.textContent?.trim() || null,
@@ -144,7 +99,6 @@ export function parseProperties(
       currency,
       city,
       district,
-      date,
       imageUrl: imageElement?.getAttribute("src") || null,
       detailsUrl: detailsUrl,
       category: categoryName,
@@ -161,10 +115,34 @@ export function parseAdDescription(html: string): string | null {
   try {
     const dom = new JSDOM(html);
     const document = dom.window.document;
-    const descriptionElement = document.querySelector('[data-cy="ad_description"] .css-19duwlz');
+    const descriptionElement = document.querySelector(
+      '[data-cy="ad_description"]',
+    );
     return descriptionElement?.textContent?.trim() || null;
   } catch (error) {
     console.error("Error parsing ad description:", error);
     return null;
+  }
+}
+
+
+export function parseAdImages(html: string): string[] {
+  try {
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+    const imageElements = document.querySelectorAll(
+      'img[loading="lazy"][class*="image-gallery-image"]',
+    );
+    const imageUrls: string[] = [];
+    imageElements.forEach((img) => {
+      const src = img.getAttribute("src");
+      if (src) {
+        imageUrls.push(src);
+      }
+    });
+    return imageUrls;
+  } catch (error) {
+    console.error("Error parsing ad images:", error);
+    return [];
   }
 }

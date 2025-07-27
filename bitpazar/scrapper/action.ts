@@ -1,191 +1,195 @@
-import { parseProperties, parseAdDescription } from "./parser.ts";
+import "dotenv/config";
 import postgres from "postgres";
-import { config } from "dotenv";
-import { cats } from "./cats.ts";
+import { z } from "zod";
+import { parseProperties, Property } from "./parser";
+import { cats } from "./cats";
 
-// Load environment variables from .env file
-config();
+type Category = (typeof cats)[number];
 
-const { DATABASE_URL } = process.env;
+const productSchema = z.object({
+  url_slug: z.string(),
+  title: z.string().nullable(),
+  price: z.number().optional().nullable(),
+  currency: z.string().optional().nullable(),
+  city: z.string().nullable(),
+  district: z.string().optional().nullable(),
+  image_url: z.string().optional().nullable(),
+  details_url: z.string().nullable(),
+  category: z.string(),
+  category_id: z.number(),
+  type: z.string(),
+  slug: z.string(),
+});
 
-if (!DATABASE_URL) {
-  console.error("DATABASE_URL environment variable is not set.");
-  process.exit(1);
+type Product = z.infer<typeof productSchema>;
+
+const HOUR_IN_MS = 60 * 60 * 1000;
+const LEGIT_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
+async function syncAndGetScrapeList(
+  sql: postgres.Sql,
+  allCategories: Category[],
+): Promise<Category[]> {
+  console.log("Syncing categories with cronlogic table...");
+
+  const categoryInserts = allCategories.map((c) => ({
+    category_id: c.id,
+    category_name: c.name,
+  }));
+
+  // Ensure all categories from cats.ts exist in the cron table
+  await sql`
+    INSERT INTO products.cronlogic ${sql(categoryInserts)}
+    ON CONFLICT (category_id) DO NOTHING
+  `;
+
+  const oneHourAgo = new Date(Date.now() - HOUR_IN_MS);
+
+  // Get categories that haven't been scraped in the last hour
+  const categoriesToScrapeIds = await sql`
+    SELECT category_id FROM products.cronlogic
+    WHERE last_scraped_at IS NULL OR last_scraped_at < ${oneHourAgo}
+  `;
+
+  const idSet = new Set(categoriesToScrapeIds.map((row) => row.category_id));
+
+  return allCategories.filter((c) => idSet.has(c.id));
 }
 
-// Set up the database connection
-const sql = postgres(DATABASE_URL, { max: 50 }); // Increased connection pool for parallel processing
+async function processCategory(category: Category, sql: postgres.Sql) {
+  console.log(`Processing category: ${category.name}`);
+  const url = category.path;
+  let productsFound = false;
 
-console.log("Successfully connected to PostgreSQL!");
-
-async function processCategory(category: (typeof cats)[0]) {
   try {
-    if (category.children && category.children.length > 0) {
-      return; // Skip parent categories in this flat processing model
-    }
-
-    if (!category.path) {
-      console.error(
-        `\n--- SKIPPING category because 'path' is missing. ID: ${category?.id}, Name: ${category?.name} ---`,
-      );
-      return;
-    }
-
-    const categorySlug = category.slug ?? `unknown-slug-${category.id}`;
-
-    const existingBatch = await sql`
-      SELECT 1 FROM products.products
-      WHERE type = 'batch-marker'
-        AND slug = ${categorySlug}
-        AND created_at > NOW() - INTERVAL '1 hour'
-      LIMIT 1
-    `;
-
-    if (existingBatch.count > 0) {
-      return; // Silently skip for cleaner logs
-    }
-
-    console.log(
-      `--- Scraping category: ${category.name || `(ID: ${category.id})`}`,
-    );
-
-    const html = await fetch(category.path, {
+    const response = await fetch(url, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "User-Agent": LEGIT_USER_AGENT,
       },
-    }).then((response) => response.text());
+    });
 
-    const properties = parseProperties(
-      html,
-      category.name ?? "Unknown",
-      category.id ?? 0,
-      category.type ?? "unknown",
-      categorySlug,
+    if (!response.ok) {
+      console.error(
+        `Failed to fetch category ${category.name}: ${response.statusText}`,
+      );
+      return; // Don't update timestamp if fetch fails
+    }
+
+    const content = await response.text();
+    const parsedProducts: Property[] = parseProperties(
+      content,
+      category.name,
+      category.id,
+      category.type,
+      category.label,
     );
 
-    if (properties.length > 0) {
-      const propertiesToInsert = properties.map((prop) => ({
-        url_slug: prop.url_slug ?? null,
-        title: prop.title ?? null,
-        price: prop.price ?? null,
-        currency: prop.currency ?? null,
-        city: prop.city ?? null,
-        district: prop.district ?? null,
-        date: null,
-        image_url: prop.imageUrl ?? null,
-        details_url: prop.detailsUrl ?? null,
-        category: prop.category ?? null,
-        category_id: prop.categoryId ?? null,
-        type: prop.type ?? null,
-        slug: prop.slug ?? null,
+    const relevantProducts = parsedProducts.filter(
+      (p) => p.categoryId === category.id,
+    );
+
+    if (relevantProducts.length > 0) {
+      productsFound = true;
+      const products: Product[] = relevantProducts.map((p) => ({
+        url_slug: p.url_slug,
+        title: p.title,
+        price: p.price,
+        currency: p.currency,
+        city: p.city,
+        district: p.district,
+        image_url: p.imageUrl,
+        details_url: p.detailsUrl,
+        category: p.category,
+        category_id: p.categoryId,
+        type: p.type,
+        slug: p.slug,
       }));
 
-      await sql`
-        INSERT INTO products.products ${sql(propertiesToInsert, "url_slug", "title", "price", "currency", "city", "district", "date", "image_url", "details_url", "category", "category_id", "type", "slug")}
-        ON CONFLICT (url_slug) DO NOTHING
-      `;
+      const validatedProducts = products
+        .map((p) => {
+          const validation = productSchema.safeParse(p);
+          if (!validation.success) {
+            return null;
+          }
+          return validation.data;
+        })
+        .filter((p): p is Product => p !== null);
+
+      if (validatedProducts.length > 0) {
+        await sql`
+          INSERT INTO products.products ${sql(validatedProducts)}
+          ON CONFLICT (url_slug) DO UPDATE
+            SET created_at = now()
+        `;
+      }
     }
-
-    const batchMarker = {
-      url_slug: `delivered-batch-${categorySlug}-${new Date().getTime()}`,
-      title: `Delivered batch for ${category.name || `(ID: ${category.id})`}`,
-      price: null,
-      currency: null,
-      city: null,
-      district: null,
-      date: new Date(),
-      image_url: null,
-      details_url: null,
-      category: category.name ?? "Unknown",
-      category_id: category.id ?? 0,
-      type: "batch-marker",
-      slug: categorySlug,
-    };
-
-    await sql`INSERT INTO products.products ${sql([batchMarker])}`;
   } catch (error) {
     console.error(
-      `\n--- FAILED to process category: "${category?.name}" (ID: ${category?.id}). Error: ${error.message} ---`,
+      `An error occurred while processing category ${category.name}:`,
+      error,
     );
-  }
-}
-
-async function processAdDetails(ad: { url_slug: string; details_url: string }) {
-  try {
-    if (!ad.details_url) {
-      return;
-    }
-
-    const html = await fetch(ad.details_url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
-    }).then((response) => response.text());
-
-    const description = parseAdDescription(html);
-
+    // Do not update timestamp if there's an error during processing
+    return;
+  } finally {
+    // ALWAYS update the timestamp to prevent re-scraping, even if no products were found.
+    // This marks the category as "checked".
+    console.log(
+      `Finished processing ${category.name}. Found products: ${productsFound}`,
+    );
     await sql`
-      UPDATE products.products
-      SET description = ${description}, processed = true
-      WHERE url_slug = ${ad.url_slug}
+      UPDATE products.cronlogic
+      SET last_scraped_at = now()
+      WHERE category_id = ${category.id}
     `;
-  } catch (error) {
-    console.error(`Failed to process ad ${ad.url_slug}: ${error.message}`);
-    // Mark as processed even if it fails to avoid retrying a broken link
-    await sql`UPDATE products.products SET processed = true WHERE url_slug = ${ad.url_slug}`;
   }
 }
 
-async function main() {
-  try {
-    // --- Phase 1: Scrape Categories for Ad Listings ---
-    const leafCategories = cats.filter(
-      (c) => !c.children || c.children.length === 0,
+async function main(sql: postgres.Sql) {
+  console.log("--- Starting Scraping Process ---");
+
+  const leafCategories = cats.filter(
+    (c) => !c.children || c.children.length === 0,
+  );
+
+  const categoriesToProcess = await syncAndGetScrapeList(sql, leafCategories);
+
+  if (categoriesToProcess.length === 0) {
+    console.log("No categories due for scraping. Exiting.");
+    return;
+  }
+
+  console.log(`Found ${categoriesToProcess.length} categories to process.`);
+
+  const categoryChunkSize = 50;
+
+  for (let i = 0; i < categoriesToProcess.length; i += categoryChunkSize) {
+    const chunk = categoriesToProcess.slice(i, i + categoryChunkSize);
+    await Promise.all(chunk.map((cat) => processCategory(cat, sql)));
+    console.log(
+      `--- Finished category batch ${
+        i / categoryChunkSize + 1
+      } / ${Math.ceil(categoriesToProcess.length / categoryChunkSize)} ---`,
     );
-    const categoryChunkSize = 50;
-    console.log(`Found ${leafCategories.length} leaf categories to process.`);
+  }
 
-    for (let i = 0; i < leafCategories.length; i += categoryChunkSize) {
-      const chunk = leafCategories.slice(i, i + categoryChunkSize);
-      await Promise.all(chunk.map((category) => processCategory(category)));
-      console.log(
-        `--- Finished category batch ${i / categoryChunkSize + 1} / ${Math.ceil(leafCategories.length / categoryChunkSize)} ---`,
-      );
-    }
-    console.log("\n✅ Category scraping phase completed.\n");
+  console.log("--- Scraping Process Finished ---");
+}
 
-    // --- Phase 2: Fetch Details for Unprocessed Ads ---
-    console.log("Starting ad detail processing phase...");
-    const adChunkSize = 250;
+export async function run() {
+  const databaseUrl = "postgres://rudix:maximus@130.204.65.82:5432/rudix";
 
-    while (true) {
-      const adsToProcess = await sql`
-        SELECT url_slug, details_url FROM products.products
-        WHERE processed = false AND details_url IS NOT NULL AND type != 'batch-marker'
-        LIMIT ${adChunkSize}
-      `;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL must be provided in .env file");
+  }
 
-      if (adsToProcess.length === 0) {
-        console.log("No more ads to process.");
-        break;
-      }
+  const sql = postgres(databaseUrl);
 
-      console.log(
-        `--- Processing a batch of ${adsToProcess.length} ads for details... ---`,
-      );
-      await Promise.all(adsToProcess.map((ad) => processAdDetails(ad)));
-    }
-
-    console.log("\n✅ Action completed successfully.");
-  } catch (error) {
-    console.error("An error occurred during the main execution:", error);
-    process.exit(1);
+  try {
+    await main(sql);
   } finally {
     await sql.end();
-    console.log("Database connection closed.");
   }
 }
 
-main();
+run().catch(console.error);

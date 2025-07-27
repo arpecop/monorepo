@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node action.ts"
+    "start": "tsx action.ts",
+    "scrape:descriptions": "tsx scrape-descriptions.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,8 +24,10 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "dotenv": "^17.2.0",
+    "@supabase/supabase-js": "^2.52.1",
+    "dotenv": "^17.2.1",
     "html-encoding-sniffer": "^4.0.0",
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "zod": "^4.0.10"
   }
 }
