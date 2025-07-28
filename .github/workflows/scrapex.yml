@@ -5,7 +5,7 @@ name: Node.js CI olx
 
 on:
   schedule:
-    - cron: "*/8 * * * *"
+    - cron: "*/4 * * * *"
 
 jobs:
   test_schedule:

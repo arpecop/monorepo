@@ -220,8 +220,17 @@ async function scrapeDescription(
     } else {
       console.log(`  ❌ Description not found.`);
     }
-  } catch (error) {
-    console.error(`Failed to process ${product.details_url}:`, error);
+  } catch (error: any) {
+    if (error.cause && error.cause.code === 'ENOTFOUND') {
+      console.warn(`URL not found (ENOTFOUND): ${product.details_url}. Skipping.`);
+      await sql`
+        UPDATE products.products
+        SET description_scraped_at = NOW()
+        WHERE url_slug = ${product.url_slug}
+      `;
+    } else {
+      console.error(`Failed to process ${product.details_url}:`, error);
+    }
   }
 }
 
@@ -285,7 +294,7 @@ async function getEmbedding(text: string): Promise<number[] | null> {
     const data = await response.json();
     return data.embedding;
   } catch (error) {
-    console.error("Failed to get embedding:", error);
+    console.error("Failed to get embedding:");
     return null;
   }
 }
@@ -357,9 +366,11 @@ async function main() {
   const sql = postgres(databaseUrl);
 
   try {
-    await scrapeCategories(sql);
-    await processEmbeddings(sql);
     await scrapeDescriptions(sql);
+    await processEmbeddings(sql);
+    await scrapeCategories(sql);
+ 
+  
   } finally {
     await sql.end();
     console.log("\nScraping process complete. Database connection closed.");
