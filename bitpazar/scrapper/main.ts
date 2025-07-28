@@ -232,7 +232,7 @@ async function scrapeDescriptions(sql: postgres.Sql) {
     SELECT title, details_url, url_slug
     FROM products.products
     WHERE description_scraped_at IS NULL
-    LIMIT 2000
+    LIMIT 1000
   `;
 
   if (products.length === 0) {
@@ -352,7 +352,7 @@ async function processEmbeddings(sql: postgres.Sql) {
 // --- Main Execution ---
 
 async function main() {
-  const databaseUrl = "postgres://rudix:maximus@130.204.65.82:5432/rudix";
+  const databaseUrl = "postgres://one:one@130.204.65.82:5432/rudix";
 
   const sql = postgres(databaseUrl);
 
