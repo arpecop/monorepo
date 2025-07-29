@@ -2,7 +2,7 @@
 
 REMOTE_HOST="192.168.100.102"
 REMOTE_USER="rudix"
-REMOTE_PATH="/home/rudix/Desktop/monorepo/news/.next"
+REMOTE_PATH="/home/rudix/Desktop/.monorepo/news/_next"
 
 next build --turbo
 
