@@ -241,7 +241,7 @@ async function scrapeDescriptions(sql: postgres.Sql) {
     SELECT title, details_url, url_slug
     FROM products.products
     WHERE description_scraped_at IS NULL
-    LIMIT 1000
+    LIMIT 500
   `;
 
   if (products.length === 0) {
@@ -306,7 +306,7 @@ async function processEmbeddings(sql: postgres.Sql) {
     SELECT url_slug, title, description
     FROM products.products
     WHERE description IS NOT NULL AND processed = false
-    LIMIT 300
+    LIMIT 3000
   `;
 
   if (productsToProcess.length === 0) {
