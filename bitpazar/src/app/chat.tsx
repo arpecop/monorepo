@@ -18,7 +18,7 @@ interface Message {
     isUser: boolean;
 }
 
-export default function Page() {
+   export default function Page() {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: "1",
