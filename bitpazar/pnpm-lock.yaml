@@ -11,6 +11,9 @@ importers:
       '@expo/vector-icons':
         specifier: ^14.1.0
         version: 14.1.0(expo-font@13.3.2(expo@53.0.19(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.3(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)))(react-native-webview@13.15.0(react-native@0.79.3(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.3(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.3(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
+      '@qdrant/js-client-rest':
+        specifier: ^1.15.0
+        version: 1.15.0(typescript@5.8.3)
       '@react-native-async-storage/async-storage':
         specifier: 2.1.2
         version: 2.1.2(react-native@0.79.3(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))
@@ -852,6 +855,16 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
+  '@qdrant/js-client-rest@1.15.0':
+    resolution: {integrity: sha512-4aaEmjRbvrk//Ser+//M4NLCBBD2dwlIGWo7PPwdoWmQYlQYDc3Ey8KTiH9ZDsyufYhHX40P2jX4zHuqtdZwJw==}
+    engines: {node: '>=18.17.0', pnpm: '>=8'}
+    peerDependencies:
+      typescript: '>=4.7'
+
+  '@qdrant/openapi-typescript-fetch@1.2.6':
+    resolution: {integrity: sha512-oQG/FejNpItrxRHoyctYvT3rwGZOnK4jr3JdppO/c78ktDvkWiPXPHNsrDf33K9sZdRb6PR7gi4noIapu5q4HA==}
+    engines: {node: '>=18.0.0', pnpm: '>=8'}
+
   '@radix-ui/react-compose-refs@1.1.2':
     resolution: {integrity: sha512-z4eqJvfiNnFMHIIvXP3CY57y2WJs5g2v3X0zm9mEJkrkNv4rDxu+sg9Jh8EkXyeqBkB7SOcboo9dMVqhyrACIg==}
     peerDependencies:
@@ -1003,6 +1016,9 @@ packages:
 
   '@react-navigation/routers@7.4.1':
     resolution: {integrity: sha512-42mZrMzQ0LfKxUb5OHIurYrPYyRsXFLolucILrvm21f0O40Sw0Ufh1bnn/jRqnxZZu7wvpUGIGYM8nS9zVE1Aw==}
+
+  '@sevinf/maybe@0.5.0':
+    resolution: {integrity: sha512-ARhyoYDnY1LES3vYI0fiG6e9esWfTNcXcO6+MPJJXcnyMV3bim4lnFt45VXouV7y82F4x3YH8nOQ6VztuvUiWg==}
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -4652,6 +4668,15 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
+  '@qdrant/js-client-rest@1.15.0(typescript@5.8.3)':
+    dependencies:
+      '@qdrant/openapi-typescript-fetch': 1.2.6
+      '@sevinf/maybe': 0.5.0
+      typescript: 5.8.3
+      undici: 6.21.3
+
+  '@qdrant/openapi-typescript-fetch@1.2.6': {}
+
   '@radix-ui/react-compose-refs@1.1.2(@types/react@19.0.14)(react@19.0.0)':
     dependencies:
       react: 19.0.0
@@ -4885,6 +4910,8 @@ snapshots:
   '@react-navigation/routers@7.4.1':
     dependencies:
       nanoid: 3.3.11
+
+  '@sevinf/maybe@0.5.0': {}
 
   '@sinclair/typebox@0.27.8': {}
 
