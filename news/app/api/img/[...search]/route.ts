@@ -7,7 +7,7 @@ const dev = process.env.NODE_ENV === "development";
 const host = dev ? "192.168.100.102" : "host.docker.internal";
 
 // Initialize NanoDB
-const n = Nano(`http://couch:${process.env.GOOGLE_CLIENT_SECRET}@${host}:5984`);
+const n = Nano(`http://1:1@${host}:5984`);
 
 const db = n.db.use("images");
 
@@ -20,9 +20,12 @@ const TRANSPARENT_PNG_BASE64 =
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { search: string[] } },
+  ctx: {
+    params: Promise<{ search: string }>;
+  },
 ) {
-  const slugArray = params.search;
+  const slugArray = (await ctx.params).search as string[];
+
   const slug = slugArray.join("/");
   const slugt = slug.replace(".jpg", "").replace(/-/g, "%20").replace("q/", "");
 
@@ -31,9 +34,9 @@ export async function GET(
 
   let cachedd = null;
   try {
-    cachedd = await db.get(slugt);
+    cachedd = await db.get(slugt).catch();
   } catch (_e: unknown) {
-    console.error("No cache found for", slugt, _e);
+    //   console.error("No cache found for", slugt, _e);
     cachedd = null;
   }
 
@@ -83,7 +86,7 @@ export async function GET(
     try {
       jsonresp = JSON.parse(src);
     } catch (error) {
-      console.error("Failed to parse JSON from Getty Images response:", error);
+      //      console.error("Failed to parse JSON from Getty Images response:", error);
       await db.multipart
         .insert(
           {},

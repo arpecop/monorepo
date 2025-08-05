@@ -29,10 +29,17 @@ export const vsearch = async (vectors: string | number[], name: string) => {
       mode: "cors",
     },
   );
-  const json = (await data.json()) as { result?: { xxx: [] } };
+  const json = (await data.json()) as {
+    result:
+    {
+      points: [
+        { payload: { [key: string]: string } }
+      ]
+    }
+  };
   if (json.result) {
-    // const pref = json.result.map(x=> )
-    return json.result;
+    const pref = json.result.points.map(x => x.payload)
+    return pref;
   } else {
     return null;
   }

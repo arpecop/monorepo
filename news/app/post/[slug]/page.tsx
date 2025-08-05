@@ -24,6 +24,7 @@ type D = [
     title: string;
     text: string;
     date: string;
+    embed: string;
     cat?: string;
   }[],
   { title: string; genid: string }[],
@@ -37,39 +38,24 @@ export default async function ArticlePage({
 }: {
   params: { slug: string };
 }) {
-  const { slug } = params;
-
-  fetch("http://192.168.100.102:6333/collections/ai/points/recommend", {
-    body: JSON.stringify({
-      limit: 10,
-      positive: [4],
-      filter: { must: [] },
-      offset: 0,
-      with_payload: true,
-      with_vector: true,
-      using: null,
-    }),
-    cache: "default",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    method: "POST",
-  });
+  const { slug } = await params;
 
   const queries = [
-    db`select id, title, text, date, cat from qa.ai where genid = ${slug} limit 1`,
-    db`select genid, title from qa.tags ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
+    db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
+    // db`select genid, title from qa.tags ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
     db`select genid, title from qa.cats ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
     db`select title, genid from qa.ai order by id desc limit 5`,
     db`select genid, title from qa.nytimes ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
   ];
 
-  const [articleResult, tags, categories, latestPosts, nytCoverage] =
+  const [articleResult, categories, latestPosts, nytCoverage] =
     (await Promise.all(queries)) as unknown as D;
   const { title, text, date, cat } = articleResult[0];
   const summary = summarize(text).split(".");
-  const relatedArticles = await vsearch(articleResult[0][0].embed, "ai");
+  const relatedArticles = await vsearch(articleResult[0].embed, "ai");
+  const tags = await vsearch(articleResult[0].embed, "tags");
+
+  console.log(tags);
 
   const tagsx = uniq(
     weightFrequencySort(
@@ -200,7 +186,7 @@ export default async function ArticlePage({
                   Related Articles
                 </h3>
                 <div className="space-y-2">
-                  {relatedArticles.map((article) => (
+                  {relatedArticles?.map((article) => (
                     <Link
                       key={article.genid}
                       href={`/post/${article.genid}`}
