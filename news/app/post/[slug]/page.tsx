@@ -18,7 +18,7 @@ import {
   Linkedin,
 } from "lucide-react";
 
-type D = [
+type Y = [
   {
     id: number;
     title: string;
@@ -28,6 +28,9 @@ type D = [
     cat?: string;
   }[],
   { title: string; genid: string }[],
+];
+
+type D = [
   { cat: string; title: string }[],
   { cat: string; title: string }[],
   { id: number; title: string; text: string; genid: string }[],
@@ -42,20 +45,26 @@ export default async function ArticlePage({
 
   const queries = [
     db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
-    // db`select genid, title from qa.tags ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
-    db`select genid, title from qa.cats ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
     db`select title, genid from qa.ai order by id desc limit 5`,
-    db`select genid, title from qa.nytimes ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
   ];
 
-  const [articleResult, categories, latestPosts, nytCoverage] =
-    (await Promise.all(queries)) as unknown as D;
+  const [articleResult, latestPosts] = (await Promise.all(
+    queries,
+  )) as unknown as Y;
+
+  const vectorqueries = [
+    vsearch(articleResult[0].embed, "ai"), // related articles
+    vsearch(articleResult[0].embed, "tags"),
+    vsearch(articleResult[0].embed, "cats"),
+    vsearch(articleResult[0].embed, "nytimes"),
+  ];
+
+  const [relatedArticles, tags] = (await Promise.all(
+    vectorqueries,
+  )) as unknown as D;
+
   const { title, text, date, cat } = articleResult[0];
   const summary = summarize(text).split(".");
-  const relatedArticles = await vsearch(articleResult[0].embed, "ai");
-  const tags = await vsearch(articleResult[0].embed, "tags");
-
-  console.log(tags);
 
   const tagsx = uniq(
     weightFrequencySort(
@@ -182,6 +191,17 @@ export default async function ArticlePage({
 
               {/* Related Articles */}
               <div>
+                <h3 className="text-xl font-bold text-foreground border-b">
+                  Latest Articles
+                </h3>
+                <div className="space-y-2">
+                  {latestPosts.map((article) => (
+                    <Link key={article.genid} href="">
+                      {article.title.replace(/#/g, "").replace(/\*/g, "")}
+                    </Link>
+                  ))}
+                </div>
+
                 <h3 className="text-xl font-bold text-foreground border-b">
                   Related Articles
                 </h3>

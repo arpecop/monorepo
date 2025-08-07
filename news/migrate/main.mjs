@@ -8,7 +8,7 @@ const PG_HOST = "192.168.100.102";
 const PG_USER = "rudix";
 const PG_PASSWORD = "maximus";
 
-const LIMIT = 500;
+const LIMIT = 2500;
 
 const COUCHDB_URL = `http://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:5984`;
 

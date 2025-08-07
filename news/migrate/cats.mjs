@@ -22,7 +22,7 @@ let couchDb = null;
 const runMigration = async (table, couchname) => {
   const query = await sql`
   SELECT *
-  FROM qa.tags  
+  FROM qa.cats  
   WHERE processed IS NULL
  order by id asc
   LIMIT ${LIMIT}`;
@@ -62,7 +62,7 @@ const runMigration = async (table, couchname) => {
   SET processed = 1
   WHERE id IN (
     SELECT id
-    FROM qa.tags
+    FROM qa.cats
     WHERE processed IS NULL  order by id asc
     LIMIT ${LIMIT} 
   )`
@@ -77,4 +77,5 @@ const runMigration = async (table, couchname) => {
   }
 };
 //
-runMigration(`qa.ai`, "tags");
+runMigration(`qa.ai`, "cats");
+
