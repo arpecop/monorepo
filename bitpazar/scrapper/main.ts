@@ -160,8 +160,7 @@ async function scrapeCategories(sql: postgres.Sql) {
     const chunk = categoriesToProcess.slice(i, i + categoryChunkSize);
     await Promise.all(chunk.map((cat) => processCategory(cat, sql)));
     console.log(
-      `--- Finished category batch ${
-        i / categoryChunkSize + 1
+      `--- Finished category batch ${i / categoryChunkSize + 1
       } / ${Math.ceil(categoriesToProcess.length / categoryChunkSize)} ---`,
     );
   }
@@ -259,8 +258,7 @@ async function scrapeDescriptions(sql: postgres.Sql) {
     await Promise.all(chunk.map((product) => scrapeDescription(sql, product)));
     const endTime = Date.now();
     console.log(
-      `--- Description chunk ${i / chunkSize + 1} processed in ${
-        (endTime - startTime) / 1000
+      `--- Description chunk ${i / chunkSize + 1} processed in ${(endTime - startTime) / 1000
       } seconds ---`,
     );
   }
@@ -369,8 +367,8 @@ async function main() {
     await scrapeDescriptions(sql);
     await processEmbeddings(sql);
     await scrapeCategories(sql);
- 
-  
+
+
   } finally {
     await sql.end();
     console.log("\nScraping process complete. Database connection closed.");

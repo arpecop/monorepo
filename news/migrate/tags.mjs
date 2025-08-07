@@ -6,13 +6,13 @@ import { QdrantClient } from "@qdrant/js-client-rest";
 // Configuration
 const PG_HOST = "192.168.100.102";
 const PG_USER = "rudix";
-const PG_PASSWORD = "maximus";
+const PG_PASSWORD = "";
 
 const LIMIT = 2500;
 
 const COUCHDB_URL = `http://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:5984`;
 
-const sql = postgres("postgres://rudix:maximus@bee.local:5432/rudix");
+const sql = postgres("postgres://rudix:@bee.local:5432/rudix");
 
 const client = new QdrantClient({ host: PG_HOST, port: 6333 });
 
