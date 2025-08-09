@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { db, vsearch } from "@/app/_lib/sql";
+import { db } from "@/app/_lib/sql";
 import Link from "next/link";
 
 // import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +18,7 @@ import {
   Linkedin,
 } from "lucide-react";
 
-type Y = [
+type D = [
   {
     id: number;
     title: string;
@@ -28,10 +28,7 @@ type Y = [
     cat?: string;
   }[],
   { title: string; genid: string }[],
-];
-
-type D = [
-  { cat: string; title: string }[],
+  { genid: string; title: string }[],
   { cat: string; title: string }[],
   { id: number; title: string; text: string; genid: string }[],
   { cat: string; title: string }[],
@@ -42,33 +39,46 @@ export default async function ArticlePage({
   params: { slug: string };
 }) {
   const { slug } = await params;
-
-  const queries = [
-    db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
-    db`select title, genid from qa.ai order by id desc limit 5`,
+  const queriesGetArr = [
+    db`select nearest_neighbor_ids from qa.ai_neighbors where source_genid = ${slug}`,
+    db`select nearest_tag_ids from qa.tags_neighbors where source_genid = ${slug}`,
+    db`select nearest_tag_ids from qa.cats_neighbors where source_genid = ${slug}`,
+    db`select nearest_tag_ids from qa.nytimes_neighbors where source_genid = ${slug}`,
   ];
 
-  const [articleResult, latestPosts] = (await Promise.all(
-    queries,
-  )) as unknown as Y;
+  const queryResults = (await Promise.all(queriesGetArr)).map(
+    (x) => Object.values(x[0])[0],
+  ) as number[][];
 
-  const vectorqueries = [
-    vsearch(articleResult[0].embed, "ai"), // related articles
-    vsearch(articleResult[0].embed, "tags"),
-    vsearch(articleResult[0].embed, "cats"),
-    vsearch(articleResult[0].embed, "nytimes"),
-  ];
+  const queries = queryResults[0][0]
+    ? [
+        db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
+        db`select title, genid from qa.ai order by id desc limit 5`,
+        db`select * from qa.ai where id in ${db(queryResults[0])}`,
+        db`select * from qa.tags where id in ${db(queryResults[1])}`,
+        db`select title from qa.cats where id in ${db(queryResults[2])}`,
+        db`select * from qa.nytimes where id in ${db(queryResults[3])}`,
+      ]
+    : [
+        db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
+        db`select title, genid from qa.ai order by id desc limit 5`,
+        db`s`,
+        db`s`,
+        db`s`,
+        db`s`,
+      ];
 
-  const [relatedArticles, tags] = (await Promise.all(
-    vectorqueries,
-  )) as unknown as D;
+  const [articleResult, latestPosts, relatedArticles, tagsx, cats, nytimes] =
+    (await Promise.all(queries)) as unknown as D;
 
-  const { title, text, date, cat } = articleResult[0];
+  const cat = weightFrequencySort(cats.map((x) => x.title));
+
+  const { title, text, date } = articleResult[0];
   const summary = summarize(text).split(".");
 
-  const tagsx = uniq(
+  const tags = uniq(
     weightFrequencySort(
-      tags
+      tagsx
         .flatMap((x) => x.title)
         .join(" ")
         .replaceAll("['", "")
@@ -133,6 +143,15 @@ export default async function ArticlePage({
                 className="prose prose-lg max-w-none text-foreground"
                 dangerouslySetInnerHTML={{ __html: article.content }}
               />
+              {tags.length > 0 &&
+                tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-block bg-black text-primary px-2 py-1 rounded-full text-xs mr-2 mb-2 text-white"
+                  >
+                    {tag}
+                  </span>
+                ))}
 
               <Separator className="my-8" />
 
@@ -196,17 +215,6 @@ export default async function ArticlePage({
                 </h3>
                 <div className="space-y-2">
                   {latestPosts.map((article) => (
-                    <Link key={article.genid} href="">
-                      {article.title.replace(/#/g, "").replace(/\*/g, "")}
-                    </Link>
-                  ))}
-                </div>
-
-                <h3 className="text-xl font-bold text-foreground border-b">
-                  Related Articles
-                </h3>
-                <div className="space-y-2">
-                  {relatedArticles?.map((article) => (
                     <Link
                       key={article.genid}
                       href={`/post/${article.genid}`}
@@ -216,9 +224,36 @@ export default async function ArticlePage({
                     </Link>
                   ))}
                 </div>
-              </div>
 
-              {/* Newsletter Signup */}
+                <h3 className="text-xl font-bold text-foreground border-b mt-6">
+                  Related Articles
+                </h3>
+                <div className="space-y-2">
+                  {relatedArticles?.map((article) => (
+                    <Link
+                      key={article.title}
+                      href={`/post/${article.genid}`}
+                      className="py-2 bg-primary/10  hover:bg-primary/20 transition-colors border-b font-bold flex text-sm"
+                    >
+                      {article.title.replace(/#/g, "").replace(/\*/g, "")}
+                    </Link>
+                  ))}
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-foreground border-b">
+                  Media Coverage
+                </h3>
+                <div className="space-y-2">
+                  {nytimes?.map((article) => (
+                    <Link
+                      key={article.title}
+                      href={`${article.cat}`}
+                      className="py-2 bg-primary/10  hover:bg-primary/20 transition-colors border-b font-bold flex text-sm"
+                    >
+                      {article.title.replace(/#/g, "").replace(/\*/g, "")}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </aside>
         </div>

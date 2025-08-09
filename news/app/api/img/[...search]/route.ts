@@ -24,7 +24,7 @@ export async function GET(
     params: Promise<{ search: string }>;
   },
 ) {
-  const slugArray = (await ctx.params).search as string[];
+  const slugArray = (await ctx.params).search as unknown as string[];
 
   const slug = slugArray.join("/");
   const slugt = slug.replace(".jpg", "").replace(/-/g, "%20").replace("q/", "");
@@ -32,13 +32,7 @@ export async function GET(
   // Decode the Base64 string into a Buffer
   const transparentBuffer = Buffer.from(TRANSPARENT_PNG_BASE64, "base64");
 
-  let cachedd = null;
-  try {
-    cachedd = await db.get(slugt).catch();
-  } catch (_e: unknown) {
-    //   console.error("No cache found for", slugt, _e);
-    cachedd = null;
-  }
+  const cachedd = await db.get(slugt).catch();
 
   if (!cachedd) {
     const response = await fetch(
@@ -86,7 +80,7 @@ export async function GET(
     try {
       jsonresp = JSON.parse(src);
     } catch (error) {
-      //      console.error("Failed to parse JSON from Getty Images response:", error);
+      console.error("Failed to parse JSON from Getty Images response:", error);
       await db.multipart
         .insert(
           {},
