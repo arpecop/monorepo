@@ -46,11 +46,12 @@ export default async function ArticlePage({
     db`select nearest_tag_ids from qa.nytimes_neighbors where source_genid = ${slug}`,
   ];
 
-  const queryResults = (await Promise.all(queriesGetArr)).map(
-    (x) => Object.values(x[0])[0],
-  ) as number[][];
+  const queryResults1 = await Promise.all(queriesGetArr);
 
-  const queries = queryResults[0][0]
+  const queryResults =
+    queryResults1[0][0] && queryResults1.map((x) => Object.values(x[0])[0]);
+
+  const queries = queryResults
     ? [
         db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
         db`select title, genid from qa.ai order by id desc limit 5`,
@@ -62,10 +63,10 @@ export default async function ArticlePage({
     : [
         db`select id, title, text, date, cat,embed from qa.ai where genid = ${slug} limit 1`,
         db`select title, genid from qa.ai order by id desc limit 5`,
-        db`s`,
-        db`s`,
-        db`s`,
-        db`s`,
+        db`SELECT * FROM qa.ai WHERE genid != ${slug} ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
+        db`SELECT * FROM qa.tags ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
+        db`SELECT * FROM qa.cats ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
+        db`SELECT * FROM qa.nytimes ORDER BY embed <-> (SELECT embed FROM qa.ai WHERE genid = ${slug}) LIMIT 5`,
       ];
 
   const [articleResult, latestPosts, relatedArticles, tagsx, cats, nytimes] =
