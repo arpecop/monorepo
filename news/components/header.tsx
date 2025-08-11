@@ -14,7 +14,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <header className="  top-0 z-50   border-b dark:border-gray-800">
+    <header className="  top-0 z-50">
       <div className="container mx-auto px-4">
         {/* Top Bar */}
 

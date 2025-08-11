@@ -82,7 +82,7 @@ export default async function HomePage() {
         </div>
       </section>
       <div className="container mx-auto p-4">
-        <NewsItems posts={data} />
+        <NewsItems posts={data.slice(1, 11)} />
       </div>
       {/* Latest News Section */}
     </div>

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/app/_lib/sql";
+import { users } from "@/app/_lib/users";
+import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 
 // import { Card, CardContent } from "@/components/ui/card";
@@ -72,9 +74,15 @@ export default async function ArticlePage({
   const [articleResult, latestPosts, relatedArticles, tagsx, cats, nytimes] =
     (await Promise.all(queries)) as unknown as D;
 
-  const cat = weightFrequencySort(cats.map((x) => x.title));
+  const cat = weightFrequencySort(cats.map((x) => x.title))[0];
 
-  const { title, text, date } = articleResult[0];
+  const { title, text, date, id } = articleResult[0];
+
+  const seeduser = Number(
+    id.toString().split("").reverse().slice(0, 2).join(""),
+  );
+  const currentUser = users[seeduser];
+
   const summary = summarize(text).split(".");
 
   const tags = uniq(
@@ -122,11 +130,14 @@ export default async function ArticlePage({
                   <div className="flex items-center space-x-2">
                     <img
                       alt=""
+                      src={currentUser.picture.medium}
                       width={100}
                       height={100}
                       className="rounded-full w-10 h-10 object-cover"
                     />
-                    <span>By </span>
+                    <span>
+                      By {currentUser.name.first} {currentUser.name.last}
+                    </span>
                   </div>
                   <span>•</span>
                   <span>
@@ -261,4 +272,25 @@ export default async function ArticlePage({
       </div>
     </div>
   );
+}
+
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const slug = (await params).slug;
+
+  // fetch post information
+  const post =
+    await db`select  title, text, date from qa.ai where genid = ${slug} limit 1`;
+
+  return {
+    title: post[0].title,
+    description: post[0].title,
+  };
 }
