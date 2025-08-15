@@ -83,7 +83,7 @@ export default async function CategoryPage({
       0.0058926, 0.1114025, -0.0630387, 0.0226513, -0.1299948, 0.102352,
       -0.0696088, -0.0409679,
     ],
-  };
+  } as { [key: string]: number[] };
 
   const data =
     (await db`select * from qa.ai ORDER BY embed <->  ${JSON.stringify(sourcedata[cat])} LIMIT 11`) as NewsItem[];
@@ -91,7 +91,7 @@ export default async function CategoryPage({
   return (
     <div className="min-h-screen">
       <div className="container mx-auto p-4">
-        <h1 class="text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-playfair">
+        <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-playfair">
           {cat}
         </h1>
 

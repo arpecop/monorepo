@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/app/_lib/sql";
 import { users } from "@/app/_lib/users";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 // import { Card, CardContent } from "@/components/ui/card";
@@ -109,7 +109,7 @@ export default async function ArticlePage({
     image: "/placeholder.svg?height=400&width=800",
     likes: 1247,
     comments: 89,
-    shares: 234,
+    shares: 24,
   };
 
   return (
@@ -279,10 +279,7 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata(
-  { params, searchParams }: Props,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug;
 
   // fetch post information
