@@ -1,32 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import postgres from "postgres";
 
-const sql = postgres(process.env.POSTGRES_URL!);
+import { betterAuth } from "better-auth";
 
-export async function POST(req: NextRequest) {
-  const { query } = await req.json();
+export const auth = betterAuth({
+  socialProviders: {
+    google: {
+      clientId: process.env.JKEY as string,
+      clientSecret: process.env.JSECRET as string,
+    },
+  },
+});
 
-  if (!query || typeof query !== "string") {
-    return NextResponse.json({ error: "Query is required" }, { status: 400 });
+const signIn = async () => {
+  const data = await auth.api.signInSocial({
+    body: {
+      provider: "google", // or any other provider id
+      callbackURL: "https://rudixops.dev/api/google/vicove",
+    },
+  });
+  return data as { url: string; error?: string };
+};
+export async function GET(req: NextRequest) {
+  //const { query } = await req.json();
+  const code = req?.nextUrl?.searchParams.get("code");
+  if (!code) {
+    const data = await signIn();
+    const url = data.url
+      .replace(
+        "_uri=",
+        "_uri=" + encodeURIComponent("https://rudixops.dev/api/google/vicove"),
+      )
+      .replace("%2Fcallback%2Fgoogle", "");
+
+    return NextResponse.redirect(url, 302);
   }
+  //return NextResponse.json({ success: true, code });
 
-  if (/delete/i.test(query)) {
-    return NextResponse.json(
-      { error: "DELETE statements are not allowed" },
-      { status: 400 },
-    );
-  }
+  const resp = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code,
+      client_id: process.env.JKEY!,
+      client_secret: process.env.JSECRET!,
+      redirect_uri: "https://rudixops.dev/api/google/vicove",
+      grant_type: "authorization_code",
+    }),
+  });
 
-  try {
-    const result = await sql.unsafe(query);
-    return NextResponse.json({ success: true, result });
-  } catch (error) {
-    if (error instanceof postgres.PostgresError) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json(
-      { error: "Failed to execute query" },
-      { status: 500 },
-    );
-  }
+  const tokens = await resp.json();
+  return NextResponse.json({ success: true, tokens });
 }
