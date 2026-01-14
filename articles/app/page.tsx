@@ -44,6 +44,19 @@ export default async function Home({
 
   const totalPages = Math.ceil(totalCount / 10);
 
+  const getPreview = (text: string) => {
+    if (!text) return '';
+    const lines = text.split('\n').filter(line => line.trim());
+    const withoutFirstLine = lines.slice(1).join('\n');
+    const sentences = withoutFirstLine.match(/[^.!?]+[.!?]+/g) || [];
+    return sentences.slice(0, 2).join(' ').trim().substring(0, 200) + '...';
+  };
+
+  const cleanTitle = (title: string) => {
+    if (!title) return '';
+    return title.replace(/[#*]+/g, '').trim();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
@@ -79,9 +92,14 @@ export default async function Home({
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <h2 className="text-xl font-semibold text-zinc-900 group-hover:text-blue-600 dark:text-zinc-50 dark:group-hover:text-blue-400 transition-colors">
-                          {article.title}
+                          {cleanTitle(article.title)}
                         </h2>
-                        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                        {article.text && (
+                          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
+                            {getPreview(article.text)}
+                          </p>
+                        )}
+                        <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-500">
                           ID: {article.genid}
                         </p>
                       </div>
