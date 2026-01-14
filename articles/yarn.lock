@@ -7,6 +7,21 @@
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
+"@apollo/client-integration-nextjs@0.14.4":
+  version "0.14.4"
+  resolved "https://registry.yarnpkg.com/@apollo/client-integration-nextjs/-/client-integration-nextjs-0.14.4.tgz#142134283c99d1d989d53b01b3bed1e981349ead"
+  integrity sha512-4fXHqP3Nh87PvJ3lOU7i/phFPrcfuhla4lWF0H9zyIm1TJGRMZRfJ/27SU87pb/f0rzGKKPzKH+N8dmKOqY3qQ==
+  dependencies:
+    "@apollo/client-react-streaming" "0.14.4"
+
+"@apollo/client-react-streaming@0.14.4":
+  version "0.14.4"
+  resolved "https://registry.yarnpkg.com/@apollo/client-react-streaming/-/client-react-streaming-0.14.4.tgz#2367a7fe40b0c8e947bc693c63ed7c63cde0a247"
+  integrity sha512-4f2aZHLfNBWcBGJYWSVQRJVVJ76qW1cLhDcM6YAKey9At86sHt6QfIkAmmHT0yxgwjPCWQiTIQOPwPcwjSswIQ==
+  dependencies:
+    "@types/react-dom" "^19.0.0"
+    "@wry/equality" "^0.5.6"
+
 "@apollo/client@^4.0.12":
   version "4.0.12"
   resolved "https://registry.yarnpkg.com/@apollo/client/-/client-4.0.12.tgz#04162c021630e2fbb343b755234e7bf0117fecb8"
@@ -19,6 +34,13 @@
     graphql-tag "^2.12.6"
     optimism "^0.18.0"
     tslib "^2.3.0"
+
+"@apollo/experimental-nextjs-app-support@^0.14.4":
+  version "0.14.4"
+  resolved "https://registry.yarnpkg.com/@apollo/experimental-nextjs-app-support/-/experimental-nextjs-app-support-0.14.4.tgz#fc73b1f446abf6c4b0f2dca622cc7af9a23d492f"
+  integrity sha512-EzgqeCg9KLGFWkKPgTORyaruVL4dSIJ3yUAEUJiyqB4Sx3d3NF7XKYZhfvDD5TAVvN9lqoUJyZE2xFXFJ0/9rQ==
+  dependencies:
+    "@apollo/client-integration-nextjs" "0.14.4"
 
 "@babel/code-frame@^7.28.6":
   version "7.28.6"
@@ -704,7 +726,7 @@
   dependencies:
     undici-types "~6.21.0"
 
-"@types/react-dom@^19":
+"@types/react-dom@^19", "@types/react-dom@^19.0.0":
   version "19.2.3"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-19.2.3.tgz#c1e305d15a52a3e508d54dca770d202cb63abf2c"
   integrity sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==
@@ -2738,6 +2760,13 @@ run-parallel@^1.1.9:
   integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
   dependencies:
     queue-microtask "^1.2.2"
+
+rxjs@^7.8.2:
+  version "7.8.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.2.tgz#955bc473ed8af11a002a2be52071bf475638607b"
+  integrity sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==
+  dependencies:
+    tslib "^2.1.0"
 
 safe-array-concat@^1.1.3:
   version "1.1.3"
