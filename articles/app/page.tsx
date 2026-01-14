@@ -1,17 +1,7 @@
-import { gql } from '@apollo/client';
 import { getClient } from '@/lib/apollo-client';
+import { GET_ARTICLES, GET_ARTICLES_COUNT } from '@/lib/queries';
 import Link from 'next/link';
 import Pagination from './components/Pagination';
-
-const GET_ARTICLES = gql`
-  query GetArticles($offset: Int = 0) {
-    qa_ai(order_by: {id: desc}, limit: 10, offset: $offset) {
-      id
-      title
-      genid
-    }
-  }
-`;
 
 export default async function Home({
   searchParams,
@@ -23,19 +13,36 @@ export default async function Home({
   const offset = (page - 1) * 10;
 
   let articles = [];
+  let totalCount = 0;
   let error = null;
 
   try {
-    const { data } = await getClient().query({
-      query: GET_ARTICLES,
-      variables: { offset },
-    });
-    articles = data?.qa_ai || [];
+    const [articlesResult, countResult] = await Promise.all([
+      getClient().query({
+        query: GET_ARTICLES,
+        variables: { offset },
+        context: {
+          fetchOptions: {
+            next: { revalidate: 60 }
+          }
+        }
+      }),
+      getClient().query({
+        query: GET_ARTICLES_COUNT,
+        context: {
+          fetchOptions: {
+            next: { revalidate: 3600 }
+          }
+        }
+      }),
+    ]);
+    articles = articlesResult.data?.qa_ai || [];
+    totalCount = countResult.data?.qa_ai_aggregate?.aggregate?.count || 0;
   } catch (e: any) {
     error = e.message;
   }
 
-  const hasMore = articles.length === 10;
+  const totalPages = Math.ceil(totalCount / 10);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
@@ -103,7 +110,7 @@ export default async function Home({
               </div>
             )}
 
-            <Pagination currentPage={page} hasMore={hasMore} />
+            <Pagination currentPage={page} totalPages={totalPages} />
           </>
         )}
       </div>
