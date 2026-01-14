@@ -1,5 +1,110 @@
 @import "tailwindcss";
 
+@layer utilities {
+  .prose {
+    color: theme('colors.zinc.700');
+    max-width: 65ch;
+  }
+  
+  .dark .prose {
+    color: theme('colors.zinc.300');
+  }
+  
+  .prose :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-lora), serif;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 2em;
+    margin-bottom: 1em;
+  }
+  
+  .prose :where(h1) { font-size: 2.25em; }
+  .prose :where(h2) { font-size: 1.875em; }
+  .prose :where(h3) { font-size: 1.5em; }
+  
+  .prose :where(p) {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    line-height: 1.75;
+  }
+  
+  .prose :where(a) {
+    color: theme('colors.blue.600');
+    text-decoration: underline;
+  }
+  
+  .dark .prose :where(a) {
+    color: theme('colors.blue.400');
+  }
+  
+  .prose :where(code) {
+    color: theme('colors.pink.600');
+    font-family: var(--font-fira-code), monospace;
+    font-size: 0.875em;
+    padding: 0.125em 0.25em;
+    border-radius: 0.25rem;
+    background-color: theme('colors.zinc.100');
+  }
+  
+  .dark .prose :where(code) {
+    color: theme('colors.pink.400');
+    background-color: theme('colors.zinc.800');
+  }
+  
+  .prose :where(pre) {
+    background-color: theme('colors.zinc.900');
+    color: theme('colors.zinc.100');
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+  }
+  
+  .dark .prose :where(pre) {
+    background-color: theme('colors.zinc.950');
+  }
+  
+  .prose :where(pre code) {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+  }
+  
+  .prose :where(ul, ol) {
+    padding-left: 1.5em;
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+  }
+  
+  .prose :where(li) {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+  
+  .prose :where(blockquote) {
+    border-left: 4px solid theme('colors.zinc.300');
+    padding-left: 1.5em;
+    font-style: italic;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+  }
+  
+  .dark .prose :where(blockquote) {
+    border-left-color: theme('colors.zinc.700');
+  }
+  
+  .prose :where(img) {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-radius: 0.5rem;
+  }
+  
+  .prose :where(strong) {
+    font-weight: 600;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

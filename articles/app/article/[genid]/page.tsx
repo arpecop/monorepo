@@ -96,7 +96,7 @@ export default async function ArticlePage({
             )}
           </header>
 
-          <div className="prose prose-lg prose-zinc dark:prose-invert max-w-none prose-headings:font-serif prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-pre:bg-zinc-900 dark:prose-pre:bg-zinc-950">
+          <div className="prose max-w-none">
             <ReactMarkdown>{removeFirstLine(article.text)}</ReactMarkdown>
           </div>
         </article>
