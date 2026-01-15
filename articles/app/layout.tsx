@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Fira_Code } from "next/font/google";
+import { Inter, Playfair_Display, Fira_Code } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,8 +8,8 @@ const inter = Inter({
   display: "swap",
 });
 
-const lora = Lora({
-  variable: "--font-lora",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
 });
@@ -31,9 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${firaCode.variable}`}>
       <body
-        className={`${inter.variable} ${lora.variable} ${firaCode.variable} antialiased`}
+        className="antialiased"
       >
         {children}
       </body>

@@ -61,7 +61,7 @@ export default async function Home({
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <h1 className="text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl">
+          <h1 className="text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }}>
             Articles
           </h1>
           <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">

@@ -2,48 +2,93 @@
 
 @layer utilities {
   .prose {
-    color: theme('colors.zinc.700');
-    max-width: 65ch;
+    color: var(--foreground);
+    max-width: 75ch;
+    font-size: 1.125rem;
+    line-height: 1.75;
+    font-family: var(--font-inter, 'Inter', system-ui, sans-serif);
   }
   
-  .dark .prose {
-    color: theme('colors.zinc.300');
+  @media (max-width: 640px) {
+    .prose {
+      font-size: 1rem;
+    }
   }
   
   .prose :where(h1, h2, h3, h4, h5, h6) {
-    font-family: var(--font-lora), serif;
+    font-family: var(--font-playfair, 'Playfair Display', Georgia, serif) !important;
     font-weight: 700;
     line-height: 1.25;
     margin-top: 2em;
-    margin-bottom: 1em;
+    margin-bottom: 0.75em;
+    color: var(--foreground);
   }
   
-  .prose :where(h1) { font-size: 2.25em; }
-  .prose :where(h2) { font-size: 1.875em; }
-  .prose :where(h3) { font-size: 1.5em; }
+  .prose :where(h1) { 
+    font-size: 2.5em;
+    margin-top: 0;
+  }
+  
+  @media (max-width: 640px) {
+    .prose :where(h1) { font-size: 2em; }
+  }
+  
+  .prose :where(h2) { 
+    font-size: 2em;
+  }
+  
+  @media (max-width: 640px) {
+    .prose :where(h2) { font-size: 1.75em; }
+  }
+  
+  .prose :where(h3) { 
+    font-size: 1.625em;
+  }
+  
+  @media (max-width: 640px) {
+    .prose :where(h3) { font-size: 1.5em; }
+  }
+  
+  .prose :where(h4) { 
+    font-size: 1.375em;
+  }
+  
+  .prose :where(h5, h6) { 
+    font-size: 1.125em;
+  }
   
   .prose :where(p) {
-    margin-top: 1.25em;
-    margin-bottom: 1.25em;
-    line-height: 1.75;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    line-height: 1.8;
   }
   
   .prose :where(a) {
     color: theme('colors.blue.600');
     text-decoration: underline;
+    font-weight: 500;
+  }
+  
+  .prose :where(a):hover {
+    color: theme('colors.blue.700');
   }
   
   .dark .prose :where(a) {
     color: theme('colors.blue.400');
   }
   
+  .dark .prose :where(a):hover {
+    color: theme('colors.blue.300');
+  }
+  
   .prose :where(code) {
     color: theme('colors.pink.600');
-    font-family: var(--font-fira-code), monospace;
-    font-size: 0.875em;
-    padding: 0.125em 0.25em;
+    font-family: var(--font-fira-code, 'Fira Code', 'Courier New', monospace) !important;
+    font-size: 0.9em;
+    padding: 0.2em 0.4em;
     border-radius: 0.25rem;
     background-color: theme('colors.zinc.100');
+    font-weight: 500;
   }
   
   .dark .prose :where(code) {
@@ -55,53 +100,107 @@
     background-color: theme('colors.zinc.900');
     color: theme('colors.zinc.100');
     padding: 1.5rem;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     overflow-x: auto;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    font-size: 0.9em;
+    line-height: 1.7;
   }
   
   .dark .prose :where(pre) {
     background-color: theme('colors.zinc.950');
+    border: 1px solid theme('colors.zinc.800');
   }
   
   .prose :where(pre code) {
     background-color: transparent;
     padding: 0;
     color: inherit;
+    font-size: inherit;
   }
   
   .prose :where(ul, ol) {
-    padding-left: 1.5em;
-    margin-top: 1.25em;
-    margin-bottom: 1.25em;
-  }
-  
-  .prose :where(li) {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-  }
-  
-  .prose :where(blockquote) {
-    border-left: 4px solid theme('colors.zinc.300');
-    padding-left: 1.5em;
-    font-style: italic;
+    padding-left: 1.75em;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
   }
   
+  .prose :where(li) {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+    line-height: 1.75;
+  }
+  
+  .prose :where(blockquote) {
+    border-left: 4px solid theme('colors.blue.500');
+    padding-left: 1.5em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    font-style: italic;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    font-size: 1.1em;
+    color: theme('colors.zinc.600');
+  }
+  
   .dark .prose :where(blockquote) {
-    border-left-color: theme('colors.zinc.700');
+    border-left-color: theme('colors.blue.500');
+    color: theme('colors.zinc.400');
   }
   
   .prose :where(img) {
-    margin-top: 2em;
-    margin-bottom: 2em;
-    border-radius: 0.5rem;
+    margin-top: 2.5em;
+    margin-bottom: 2.5em;
+    border-radius: 0.75rem;
+    width: 100%;
+    height: auto;
   }
   
   .prose :where(strong) {
     font-weight: 600;
+    color: var(--foreground);
+  }
+  
+  .prose :where(em) {
+    font-style: italic;
+  }
+  
+  .prose :where(hr) {
+    border-top: 1px solid theme('colors.zinc.200');
+    margin-top: 3em;
+    margin-bottom: 3em;
+  }
+  
+  .dark .prose :where(hr) {
+    border-top-color: theme('colors.zinc.800');
+  }
+  
+  .prose :where(table) {
+    width: 100%;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-collapse: collapse;
+  }
+  
+  .prose :where(th) {
+    font-weight: 600;
+    padding: 0.75em;
+    border-bottom: 2px solid theme('colors.zinc.300');
+    text-align: left;
+  }
+  
+  .dark .prose :where(th) {
+    border-bottom-color: theme('colors.zinc.700');
+  }
+  
+  .prose :where(td) {
+    padding: 0.75em;
+    border-bottom: 1px solid theme('colors.zinc.200');
+  }
+  
+  .dark .prose :where(td) {
+    border-bottom-color: theme('colors.zinc.800');
   }
 }
 
@@ -114,7 +213,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-serif: var(--font-lora);
+  --font-serif: var(--font-playfair);
   --font-mono: var(--font-fira-code);
 }
 
@@ -129,4 +228,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+@supports (font-variation-settings: normal) {
+  body {
+    font-family: var(--font-inter, 'Inter', system-ui, sans-serif);
+  }
 }
