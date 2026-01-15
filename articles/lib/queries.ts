@@ -42,3 +42,13 @@ export const GET_ARTICLE_BY_GENID = gql`
     }
   }
 `;
+
+export const GET_SIMILAR_ARTICLES = gql`
+  query GetSimilarArticles($where: qa_ai_bool_exp!, $excludeGenid: String!) {
+    qa_ai(order_by: {id: desc}, where: {_and: [$where, {genid: {_neq: $excludeGenid}}]}, limit: 5) {
+      id
+      title
+      genid
+    }
+  }
+`;

@@ -1,5 +1,5 @@
 import { getClient } from '@/lib/apollo-client';
-import { GET_ARTICLE_BY_GENID } from '@/lib/queries';
+import { GET_ARTICLE_BY_GENID, GET_SIMILAR_ARTICLES } from '@/lib/queries';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { Metadata } from 'next';
@@ -71,6 +71,7 @@ export default async function ArticlePage({
 }) {
   const { genid } = await params;
   let article = null;
+  let similarArticles: any[] = [];
   let error = null;
 
   try {
@@ -79,6 +80,37 @@ export default async function ArticlePage({
       variables: { _eq: genid },
     });
     article = data?.qa_ai?.[0];
+
+    // Get similar articles based on title keywords
+    if (article?.title) {
+      const cleanTitle = (title: string) => {
+        if (!title) return '';
+        return title.replace(/[#*]+/g, '').trim();
+      };
+
+      const titleWords = cleanTitle(article.title)
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(word => word.length > 3); // Only use words longer than 3 characters
+
+      if (titleWords.length > 0) {
+        const similarWhere = {
+          _or: titleWords.map(word => ({
+            title: { _ilike: `%${word}%` }
+          }))
+        };
+
+        try {
+          const { data: similarData } = await getClient().query({
+            query: GET_SIMILAR_ARTICLES,
+            variables: { where: similarWhere, excludeGenid: genid },
+          });
+          similarArticles = similarData?.qa_ai || [];
+        } catch (e) {
+          console.error('Error fetching similar articles:', e);
+        }
+      }
+    }
   } catch (e: any) {
     error = e.message;
   }
@@ -150,7 +182,7 @@ export default async function ArticlePage({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="mb-8 inline-block text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -158,40 +190,76 @@ export default async function ArticlePage({
           ← Back to articles
         </Link>
 
-        <article className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <header className="mb-8 border-b border-zinc-200 pb-6 dark:border-zinc-800">
-            <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }}>
-              {cleanTitle(article.title)}
-            </h1>
-            {article.date && (
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                {new Date(article.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-            )}
-          </header>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Article */}
+          <article className="lg:col-span-2 rounded-xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <header className="mb-8 border-b border-zinc-200 pb-6 dark:border-zinc-800">
+              <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }}>
+                {cleanTitle(article.title)}
+              </h1>
+              {article.date && (
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                  {new Date(article.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              )}
+            </header>
 
-          <div className="prose max-w-none" style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }}>
-            <ReactMarkdown
-              components={{
-                h1: ({ node, ...props }) => <h1 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                h2: ({ node, ...props }) => <h2 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                h3: ({ node, ...props }) => <h3 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                h4: ({ node, ...props }) => <h4 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                h5: ({ node, ...props }) => <h5 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                h6: ({ node, ...props }) => <h6 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                p: ({ node, ...props }) => <p style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }} {...props} />,
-                li: ({ node, ...props }) => <li style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }} {...props} />,
-                code: ({ node, ...props }) => <code style={{ fontFamily: 'var(--font-fira-code, "Fira Code", monospace)' }} {...props} />,
-              }}
-            >
-              {processedText}
-            </ReactMarkdown>
-          </div>
-        </article>
+            <div className="prose max-w-none" style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }}>
+              <ReactMarkdown
+                components={{
+                  h1: ({ node, ...props }) => <h1 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
+                  h2: ({ node, ...props }) => <h2 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
+                  h3: ({ node, ...props }) => <h3 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
+                  h4: ({ node, ...props }) => <h4 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
+                  h5: ({ node, ...props }) => <h5 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
+                  h6: ({ node, ...props }) => <h6 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
+                  p: ({ node, ...props }) => <p style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }} {...props} />,
+                  li: ({ node, ...props }) => <li style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }} {...props} />,
+                  code: ({ node, ...props }) => <code style={{ fontFamily: 'var(--font-fira-code, "Fira Code", monospace)' }} {...props} />,
+                }}
+              >
+                {processedText}
+              </ReactMarkdown>
+            </div>
+          </article>
+
+          {/* Similar Articles Sidebar */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-8">
+              <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }}>
+                  Similar Articles
+                </h2>
+                
+                {similarArticles.length > 0 ? (
+                  <div className="space-y-3">
+                    {similarArticles.map((similar: any) => (
+                      <Link
+                        key={similar.id}
+                        href={`/article/${similar.genid}`}
+                        className="block group"
+                      >
+                        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 transition-all hover:border-blue-300 hover:bg-blue-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-700 dark:hover:bg-zinc-750">
+                          <h3 className="text-sm font-medium text-zinc-900 group-hover:text-blue-600 dark:text-zinc-50 dark:group-hover:text-blue-400 line-clamp-2">
+                            {cleanTitle(similar.title)}
+                          </h3>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    No similar articles found.
+                  </p>
+                )}
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
