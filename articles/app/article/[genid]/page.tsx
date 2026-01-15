@@ -2,6 +2,67 @@ import { getClient } from '@/lib/apollo-client';
 import { GET_ARTICLE_BY_GENID } from '@/lib/queries';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import { Metadata } from 'next';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ genid: string }>;
+}): Promise<Metadata> {
+  const { genid } = await params;
+  
+  try {
+    const { data } = await getClient().query({
+      query: GET_ARTICLE_BY_GENID,
+      variables: { _eq: genid },
+    });
+    
+    const article = data?.qa_ai?.[0];
+    
+    if (!article) {
+      return {
+        title: 'Article Not Found',
+        description: 'The requested article could not be found.',
+      };
+    }
+
+    const cleanTitle = (title: string) => {
+      if (!title) return '';
+      return title.replace(/[#*]+/g, '').trim();
+    };
+
+    const getDescription = (text: string) => {
+      if (!text) return '';
+      const lines = text.split('\n').filter(line => line.trim());
+      const withoutFirstLine = lines.slice(1).join('\n');
+      const sentences = withoutFirstLine.match(/[^.!?]+[.!?]+/g) || [];
+      return sentences.slice(0, 2).join(' ').trim().substring(0, 160);
+    };
+
+    const title = cleanTitle(article.title);
+    const description = getDescription(article.text);
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: 'article',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+      },
+    };
+  } catch (e) {
+    return {
+      title: 'Article',
+      description: 'Read our article',
+    };
+  }
+}
 
 export default async function ArticlePage({
   params,
