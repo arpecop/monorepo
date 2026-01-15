@@ -4,6 +4,8 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { Metadata } from 'next';
 
+// Removed edge runtime due to react-markdown incompatibility
+
 export async function generateMetadata({
   params,
 }: {

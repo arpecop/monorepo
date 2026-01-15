@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/apollo-client';
 import { SEARCH_ARTICLES } from '@/lib/queries';
 
+// Removed edge runtime for OpenNext compatibility
+
 export async function POST(request: Request) {
   try {
     const { where } = await request.json();
