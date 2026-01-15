@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_ARTICLES = gql`
-  query GetArticles($offset: Int = 0) {
-    qa_ai(order_by: {id: desc}, limit: 10, offset: $offset) {
+  query GetArticles($offset: Int = 0, $where: qa_ai_bool_exp = {}) {
+    qa_ai(order_by: {id: desc}, limit: 10, offset: $offset, where: $where) {
       id
       title
       genid
@@ -12,11 +12,22 @@ export const GET_ARTICLES = gql`
 `;
 
 export const GET_ARTICLES_COUNT = gql`
-  query GetArticlesCount {
-    qa_ai_aggregate {
+  query GetArticlesCount($where: qa_ai_bool_exp = {}) {
+    qa_ai_aggregate(where: $where) {
       aggregate {
         count
       }
+    }
+  }
+`;
+
+export const SEARCH_ARTICLES = gql`
+  query SearchArticles($where: qa_ai_bool_exp!) {
+    qa_ai(order_by: {id: desc}, where: $where, limit: 10) {
+      id
+      title
+      genid
+      text
     }
   }
 `;
