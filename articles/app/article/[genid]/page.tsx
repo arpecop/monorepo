@@ -3,6 +3,7 @@ import { GET_ARTICLE_BY_GENID, GET_SIMILAR_ARTICLES } from '@/lib/queries';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { Metadata } from 'next';
+import ArticleContent from './ArticleContent';
 
 // Removed edge runtime due to react-markdown incompatibility
 
@@ -196,7 +197,7 @@ export default async function ArticlePage({
           {/* Main Article */}
           <article className="lg:col-span-2 rounded-xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <header className="mb-8 border-b border-zinc-200 pb-6 dark:border-zinc-800">
-              <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }}>
+              <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
                 {cleanTitle(article.title)}
               </h1>
               {article.date && (
@@ -210,18 +211,18 @@ export default async function ArticlePage({
               )}
             </header>
 
-            <div className="prose max-w-none" style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }}>
+            <div className="prose max-w-none" style={{ fontFamily: '"Inter", system-ui, sans-serif' }}>
               <ReactMarkdown
                 components={{
-                  h1: ({ node, ...props }) => <h1 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                  h2: ({ node, ...props }) => <h2 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                  h3: ({ node, ...props }) => <h3 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                  h4: ({ node, ...props }) => <h4 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                  h5: ({ node, ...props }) => <h5 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                  h6: ({ node, ...props }) => <h6 style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }} {...props} />,
-                  p: ({ node, ...props }) => <p style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }} {...props} />,
-                  li: ({ node, ...props }) => <li style={{ fontFamily: 'var(--font-inter, "Inter", system-ui, sans-serif)' }} {...props} />,
-                  code: ({ node, ...props }) => <code style={{ fontFamily: 'var(--font-fira-code, "Fira Code", monospace)' }} {...props} />,
+                  h1: ({ node, ...props }) => <h1 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} {...props} />,
+                  h2: ({ node, ...props }) => <h2 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} {...props} />,
+                  h3: ({ node, ...props }) => <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} {...props} />,
+                  h4: ({ node, ...props }) => <h4 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} {...props} />,
+                  h5: ({ node, ...props }) => <h5 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} {...props} />,
+                  h6: ({ node, ...props }) => <h6 style={{ fontFamily: '"Playfair Display", Georgia, serif' }} {...props} />,
+                  p: ({ node, ...props }) => <p style={{ fontFamily: '"Inter", system-ui, sans-serif' }} {...props} />,
+                  li: ({ node, ...props }) => <li style={{ fontFamily: '"Inter", system-ui, sans-serif' }} {...props} />,
+                  code: ({ node, ...props }) => <code style={{ fontFamily: '"Fira Code", monospace' }} {...props} />,
                 }}
               >
                 {processedText}
@@ -233,7 +234,7 @@ export default async function ArticlePage({
           <aside className="lg:col-span-1">
             <div className="sticky top-8">
               <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)' }}>
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
                   Similar Articles
                 </h2>
                 
@@ -261,6 +262,11 @@ export default async function ArticlePage({
               </div>
             </div>
           </aside>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-8 max-w-4xl">
+          <ArticleContent genid={genid} />
         </div>
       </div>
     </div>
