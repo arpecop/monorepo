@@ -186,48 +186,29 @@ export default function CommentSection({ genid }: { genid: string }) {
     const isReplying = replyingTo === comment.id;
 
     return (
-      <div key={comment.id} className="relative">
+      <div key={comment.id} className="flex gap-0 mb-2">
+        {/* Thread line container */}
         {depth > 0 && (
-          <>
-            {/* Vertical line (hidden if last comment) */}
+          <div className="relative flex-shrink-0" style={{ width: '2rem' }}>
+            {/* Vertical line continuing down - hidden for last comment */}
             {!isLast && (
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-0.5 bg-zinc-300 dark:bg-zinc-700"
-                style={{ left: `${(depth - 1) * 2}rem` }}
-              />
+              <div className="absolute left-0 top-6 bottom-0 w-0.5 bg-zinc-300 dark:bg-zinc-700" />
             )}
             
-            {/* Hook connector with quarter circle */}
+            {/* Hook connector - curved line from top */}
             <div 
-              className="absolute"
-              style={{ 
-                left: `${(depth - 1) * 2}rem`,
-                top: '1.5rem',
-                width: '1.5rem',
+              className="absolute left-0 top-0 border-l-2 border-b-2 border-zinc-300 dark:border-zinc-700"
+              style={{
+                width: '2rem',
                 height: '1.5rem',
+                borderBottomLeftRadius: '0.75rem',
               }}
-            >
-              {/* Quarter circle - bottom-left visible only */}
-              <div 
-                className="absolute border-b-2 border-l-2 border-zinc-300 dark:border-zinc-700"
-                style={{
-                  width: '1.5rem',
-                  height: '1.5rem',
-                  borderBottomLeftRadius: '1.5rem',
-                  left: '0',
-                  top: '-1.5rem',
-                }}
-              />
-            </div>
-          </>
+            />
+          </div>
         )}
 
-        <div 
-          className="mb-4"
-          style={{ 
-            marginLeft: depth > 0 ? `${depth * 2 + 1.5}rem` : '0'
-          }}
-        >
+        {/* Comment content */}
+        <div className="flex-1 min-w-0">
           <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -266,8 +247,9 @@ export default function CommentSection({ genid }: { genid: string }) {
             )}
           </div>
 
+          {/* Nested replies */}
           {comment.replies && comment.replies.length > 0 && (
-            <div className="mt-2 relative">
+            <div className="mt-2">
               {comment.replies.map((reply, index) => 
                 renderComment(reply, depth + 1, index === comment.replies!.length - 1)
               )}
