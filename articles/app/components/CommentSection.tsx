@@ -182,56 +182,98 @@ export default function CommentSection({ genid }: { genid: string }) {
     }
   };
 
-  const renderComment = (comment: Comment, depth: number = 0) => {
+  const renderComment = (comment: Comment, depth: number = 0, isLast: boolean = false) => {
     const isReplying = replyingTo === comment.id;
-    const marginLeft = depth > 0 ? 'ml-8' : '';
-    const borderLeft = depth > 0 ? 'border-l-2 border-zinc-300 dark:border-zinc-700 pl-4' : '';
 
     return (
-      <div key={comment.id} className={`${marginLeft} ${borderLeft} mb-4`}>
-        <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
-                {comment.username}
-              </span>
-            </div>
-          </div>
-          <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap mb-2">
-            {comment.text}
-          </p>
-          <button
-            onClick={() => setReplyingTo(isReplying ? null : comment.id)}
-            className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            {isReplying ? 'Cancel' : 'Reply'}
-          </button>
-
-          {isReplying && (
-            <div className="mt-3">
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Write a reply..."
-                className="w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500"
-                rows={3}
+      <div key={comment.id} className="relative">
+        {depth > 0 && (
+          <>
+            {/* Vertical line (hidden if last comment) */}
+            {!isLast && (
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-0.5 bg-zinc-300 dark:bg-zinc-700"
+                style={{ left: `${(depth - 1) * 2}rem` }}
               />
-              <button
-                onClick={() => handleSubmitReply(comment.id)}
-                disabled={!replyText.trim() || !username.trim()}
-                className="mt-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed dark:disabled:bg-zinc-700"
-              >
-                Reply
-              </button>
+            )}
+            
+            {/* Hook connector with quarter circle */}
+            <div 
+              className="absolute"
+              style={{ 
+                left: `${(depth - 1) * 2}rem`,
+                top: '1.5rem',
+                width: '1.5rem',
+                height: '1.5rem',
+              }}
+            >
+              {/* Quarter circle - bottom-left visible only */}
+              <div 
+                className="absolute border-b-2 border-l-2 border-zinc-300 dark:border-zinc-700"
+                style={{
+                  width: '1.5rem',
+                  height: '1.5rem',
+                  borderBottomLeftRadius: '1.5rem',
+                  left: '0',
+                  top: '-1.5rem',
+                }}
+              />
+            </div>
+          </>
+        )}
+
+        <div 
+          className="mb-4"
+          style={{ 
+            marginLeft: depth > 0 ? `${depth * 2 + 1.5}rem` : '0'
+          }}
+        >
+          <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
+                  {comment.username}
+                </span>
+              </div>
+            </div>
+            <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap mb-2">
+              {comment.text}
+            </p>
+            <button
+              onClick={() => setReplyingTo(isReplying ? null : comment.id)}
+              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              {isReplying ? 'Cancel' : 'Reply'}
+            </button>
+
+            {isReplying && (
+              <div className="mt-3">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Write a reply..."
+                  className="w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500"
+                  rows={3}
+                />
+                <button
+                  onClick={() => handleSubmitReply(comment.id)}
+                  disabled={!replyText.trim() || !username.trim()}
+                  className="mt-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed dark:disabled:bg-zinc-700"
+                >
+                  Reply
+                </button>
+              </div>
+            )}
+          </div>
+
+          {comment.replies && comment.replies.length > 0 && (
+            <div className="mt-2 relative">
+              {comment.replies.map((reply, index) => 
+                renderComment(reply, depth + 1, index === comment.replies!.length - 1)
+              )}
             </div>
           )}
         </div>
-
-        {comment.replies && comment.replies.length > 0 && (
-          <div className="mt-2">
-            {comment.replies.map(reply => renderComment(reply, depth + 1))}
-          </div>
-        )}
       </div>
     );
   };
