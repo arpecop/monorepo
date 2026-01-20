@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/auth-context';
+import Link from 'next/link';
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'https://hasura.rudixops.dev/v1/graphql';
 
@@ -16,7 +18,7 @@ type Comment = {
 type SortOption = 'new' | 'old' | 'top';
 
 export default function CommentSection({ genid }: { genid: string }) {
-  const [username, setUsername] = useState('');
+  const { user, token } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
@@ -96,18 +98,21 @@ export default function CommentSection({ genid }: { genid: string }) {
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim() || !username.trim()) return;
+    if (!commentText.trim() || !token) return;
 
     setInsertLoading(true);
     try {
       const response = await fetch(GRAPHQL_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({
           query: `
             mutation InsertComment($object: qa_comments_insert_input!) {
-              insert_qa_comments_one(object: $object) {
-                id
+              insert_qa_comments(objects: [$object]) {
+                affected_rows
               }
             }
           `,
@@ -116,7 +121,6 @@ export default function CommentSection({ genid }: { genid: string }) {
               genid: genidInt,
               replyto: genidInt,
               text: commentText,
-              username: username,
             },
           },
         }),
@@ -139,18 +143,21 @@ export default function CommentSection({ genid }: { genid: string }) {
   };
 
   const handleSubmitReply = async (parentId: number) => {
-    if (!replyText.trim() || !username.trim()) return;
+    if (!replyText.trim() || !token) return;
 
     setInsertLoading(true);
     try {
       const response = await fetch(GRAPHQL_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({
           query: `
             mutation InsertComment($object: qa_comments_insert_input!) {
-              insert_qa_comments_one(object: $object) {
-                id
+              insert_qa_comments(objects: [$object]) {
+                affected_rows
               }
             }
           `,
@@ -159,7 +166,6 @@ export default function CommentSection({ genid }: { genid: string }) {
               genid: genidInt,
               replyto: parentId,
               text: replyText,
-              username: username,
             },
           },
         }),
@@ -240,12 +246,14 @@ export default function CommentSection({ genid }: { genid: string }) {
             <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap mb-2">
               {comment.text}
             </p>
-            <button
-              onClick={() => setReplyingTo(isReplying ? null : comment.id)}
-              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              {isReplying ? 'Cancel' : 'Reply'}
-            </button>
+            {user && (
+              <button
+                onClick={() => setReplyingTo(isReplying ? null : comment.id)}
+                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                {isReplying ? 'Cancel' : 'Reply'}
+              </button>
+            )}
 
             {isReplying && (
               <div className="mt-3">
@@ -258,7 +266,7 @@ export default function CommentSection({ genid }: { genid: string }) {
                 />
                 <button
                   onClick={() => handleSubmitReply(comment.id)}
-                  disabled={!replyText.trim() || !username.trim()}
+                  disabled={!replyText.trim()}
                   className="mt-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed dark:disabled:bg-zinc-700"
                 >
                   Reply
@@ -322,29 +330,61 @@ export default function CommentSection({ genid }: { genid: string }) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmitComment} className="mb-8">
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          className="w-full mb-3 rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500"
-        />
-        <textarea
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="What are your thoughts?"
-          className="w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500"
-          rows={4}
-        />
-        <button
-          type="submit"
-          disabled={insertLoading || !commentText.trim() || !username.trim()}
-          className="mt-3 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed dark:disabled:bg-zinc-700"
-        >
-          {insertLoading ? 'Posting...' : 'Post Comment'}
-        </button>
-      </form>
+      {!user ? (
+        <div className="mb-8 rounded-lg border border-zinc-300 bg-zinc-50 p-6 text-center dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="mb-3 text-zinc-700 dark:text-zinc-300">
+            You must be logged in to comment
+          </p>
+          <div className="flex justify-center gap-3">
+            <Link
+              href="/login"
+              className="rounded-lg bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
+            >
+              Login
+            </Link>
+            <Link
+              href="/signup"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Sign Up
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmitComment} className="mb-8">
+          {/* Debug info */}
+          <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs dark:bg-yellow-900/20 dark:border-yellow-800">
+            <strong>Debug:</strong> user.id={user.id}, user.username={user.username}, token={token ? 'exists' : 'missing'}
+            {token && (
+              <div className="mt-1">
+                Token preview: {token.substring(0, 50)}...
+                <br />
+                Decoded payload: {JSON.stringify(JSON.parse(atob(token.split('.')[1])), null, 2)}
+              </div>
+            )}
+          </div>
+          
+          <textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="What are your thoughts?"
+            className="w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500"
+            rows={4}
+          />
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              Posting as <span className="font-medium">{user.username}</span>
+            </span>
+            <button
+              type="submit"
+              disabled={insertLoading || !commentText.trim()}
+              className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 disabled:bg-zinc-300 disabled:cursor-not-allowed dark:disabled:bg-zinc-700"
+            >
+              {insertLoading ? 'Posting...' : 'Post Comment'}
+            </button>
+          </div>
+        </form>
+      )}
 
       {loading && <p className="text-zinc-500 dark:text-zinc-400">Loading comments...</p>}
 

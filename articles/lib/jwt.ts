@@ -11,6 +11,7 @@ export interface JWTPayload {
     'x-hasura-allowed-roles': string[];
     'x-hasura-default-role': string;
     'x-hasura-user-id': string;
+    'x-hasura-user-name': string;
   };
 }
 
@@ -22,6 +23,7 @@ export function generateToken(userId: number, username: string): string {
       'x-hasura-allowed-roles': ['user'],
       'x-hasura-default-role': 'user',
       'x-hasura-user-id': userId.toString(),
+      'x-hasura-user-name': username,
     },
   };
 

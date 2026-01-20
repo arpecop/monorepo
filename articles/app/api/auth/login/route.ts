@@ -31,8 +31,7 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        // Note: In production, use admin secret securely from server-side env var
-        // 'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET,
+        'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET || '',
       },
       body: JSON.stringify({
         query,
