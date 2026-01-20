@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
+import { ApolloWrapper } from "@/lib/apollo-provider";
+import { Navbar } from "./components/Navbar";
 
 export const metadata: Metadata = {
   title: "Articles",
@@ -18,10 +21,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:wght@400..900&family=Fira+Code:wght@300..700&display=swap" rel="stylesheet" />
       </head>
-      <body
-        className="antialiased"
-      >
-        {children}
+      <body className="antialiased">
+        <AuthProvider>
+          <ApolloWrapper>
+            <Navbar />
+            {children}
+          </ApolloWrapper>
+        </AuthProvider>
       </body>
     </html>
   );

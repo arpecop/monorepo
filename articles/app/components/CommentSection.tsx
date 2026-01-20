@@ -203,7 +203,27 @@ export default function CommentSection({ genid }: { genid: string }) {
                 height: '1.5rem',
                 borderBottomLeftRadius: '0.75rem',
               }}
-            />
+            >
+              {/* Hider div - covers top-right and right side of circle to show only bottom-left quarter */}
+              <div 
+                className="absolute bg-white dark:bg-zinc-900"
+                style={{
+                  width: '2rem',
+                  height: '0.75rem',
+                  top: 0,
+                  left: 0,
+                }}
+              />
+              <div 
+                className="absolute bg-white dark:bg-zinc-900"
+                style={{
+                  width: '1rem',
+                  height: '1.5rem',
+                  top: 0,
+                  right: 0,
+                }}
+              />
+            </div>
           </div>
         )}
 
