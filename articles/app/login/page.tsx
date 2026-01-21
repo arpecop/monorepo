@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import Cookies from 'js-cookie';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +21,16 @@ export default function LoginPage() {
 
     try {
       await login(username, password);
-      router.push('/');
+      
+      // Check if there's a redirect article ID in cookies
+      const redirectArticleId = Cookies.get('redirect_article_id');
+      if (redirectArticleId) {
+        // Clear the cookie and redirect to the article
+        Cookies.remove('redirect_article_id');
+        router.push(`/article/${redirectArticleId}`);
+      } else {
+        router.push('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
