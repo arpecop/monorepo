@@ -352,18 +352,6 @@ export default function CommentSection({ genid }: { genid: string }) {
         </div>
       ) : (
         <form onSubmit={handleSubmitComment} className="mb-8">
-          {/* Debug info */}
-          <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs dark:bg-yellow-900/20 dark:border-yellow-800">
-            <strong>Debug:</strong> user.id={user.id}, user.username={user.username}, token={token ? 'exists' : 'missing'}
-            {token && (
-              <div className="mt-1">
-                Token preview: {token.substring(0, 50)}...
-                <br />
-                Decoded payload: {JSON.stringify(JSON.parse(atob(token.split('.')[1])), null, 2)}
-              </div>
-            )}
-          </div>
-          
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
