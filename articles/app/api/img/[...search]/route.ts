@@ -1,15 +1,9 @@
 // app/api/[...search]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import Nano from "nano";
 
-// Determine if in development mode for host configuration
-
-
-
-// Initialize NanoDB
-const n = Nano(`https://1:1@db.rudixops.dev`);
-
-const db = n.db.use("images");
+// CouchDB configuration
+const COUCHDB_URL = "https://1:1@db.rudixops.dev";
+const DB_NAME = "images";
 
 // HARDCODED TRANSPARENT PNG (Base64 encoded)
 // REPLACE THIS WITH YOUR ACTUAL BASE64 STRING
@@ -24,102 +18,132 @@ export async function GET(
     params: Promise<{ search: string }>;
   },
 ) {
-  const slugArray = (await ctx.params).search as unknown as string[];
+  try {
+    const slugArray = (await ctx.params).search as unknown as string[];
 
-  const slug = slugArray.join("/");
-  const slugt = slug.replace(".jpg", "").replace(/-/g, "%20").replace("q/", "");
+    const slug = slugArray.join("/");
+    const slugt = slug.replace(".jpg", "").replace(/-/g, "%20").replace("q/", "");
 
-  // Decode the Base64 string into a Buffer
-  const transparentBuffer = Buffer.from(TRANSPARENT_PNG_BASE64, "base64");
+    // Decode the Base64 string into a Buffer
+    const transparentBuffer = Buffer.from(TRANSPARENT_PNG_BASE64, "base64");
 
-  const cachedd = await db.get(slugt).catch(() => null);
+    // Check if document exists in CouchDB
+    const docUrl = `${COUCHDB_URL}/${DB_NAME}/${encodeURIComponent(slugt)}`;
+    const docResponse = await fetch(docUrl, { redirect: "follow" });
+    const cachedd = docResponse.ok ? await docResponse.json() : null;
 
-  if (!cachedd) {
-    const response = await fetch(
-      "https://www.gettyimages.com/search/2/image-film?family=creative&phrase=" +
-      slugt,
-      {
-        method: "GET",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-        },
-      },
-    );
-
-    let src = await response.text();
-
-    try {
-      src = src
-        .split("<script type=\"application/json\" data-component='Search'>")[1]
-        .split("</script>")[0];
-    } catch (error) {
-      console.error("Failed to parse Getty Images response:", error);
-      await db.multipart
-        .insert(
-          {},
-          [
-            {
-              name: "image.jpg",
-              data: transparentBuffer,
-              content_type: "image/jpeg",
-            },
-          ],
-          slugt,
-        )
-        .catch(() => null);
-
-      return new NextResponse(transparentBuffer, {
-        headers: { "Content-Type": "image/png" }, // Set content type to PNG as it's a PNG
-      });
-    }
-
-    const jsonresp = JSON.parse(src);
-
-    if (jsonresp.search?.gallery?.assets?.[0]) {
-      const responsex = await fetch(jsonresp.search.gallery.assets[0].thumbUrl);
-
-      const buffer = Buffer.from(await responsex.arrayBuffer());
-      await db.multipart.insert(
-        jsonresp.search.gallery.assets[0],
-        [
-          {
-            name: "image.jpg",
-            data: buffer,
-            content_type: "image/jpeg",
-          },
-        ],
+    if (!cachedd) {
+      const response = await fetch(
+        "https://www.gettyimages.com/search/2/image-film?family=creative&phrase=" +
         slugt,
+        {
+          method: "GET",
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+          },
+          redirect: "follow",
+        },
       );
 
-      return new NextResponse(buffer, {
-        headers: { "Content-Type": "image/jpeg" },
-      });
-    } else {
-      await db.multipart
-        .insert(
-          {},
-          [
-            {
-              name: "image.jpg",
-              data: transparentBuffer,
-              content_type: "image/jpeg", // Keep as jpeg for consistency, though it's a PNG
+      let src = await response.text();
+
+      try {
+        src = src
+          .split("<script type=\"application/json\" data-component='Search'>")[1]
+          .split("</script>")[0];
+      } catch (error) {
+        console.error("Failed to parse Getty Images response:", error);
+        
+        // Store transparent image in CouchDB
+        await fetch(docUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            _attachments: {
+              "image.jpg": {
+                content_type: "image/jpeg",
+                data: transparentBuffer.toString("base64"),
+              },
             },
-          ],
-          slugt,
-        )
-        .catch((e) =>
+          }),
+          redirect: "follow",
+        }).catch(() => null);
+
+        return new NextResponse(transparentBuffer, {
+          headers: { "Content-Type": "image/png" },
+        });
+      }
+
+      const jsonresp = JSON.parse(src);
+
+      if (jsonresp.search?.gallery?.assets?.[0]) {
+        const responsex = await fetch(jsonresp.search.gallery.assets[0].thumbUrl, {
+          redirect: "follow",
+        });
+
+        const buffer = Buffer.from(await responsex.arrayBuffer());
+        
+        // Store image and metadata in CouchDB
+        await fetch(docUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...jsonresp.search.gallery.assets[0],
+            _attachments: {
+              "image.jpg": {
+                content_type: "image/jpeg",
+                data: buffer.toString("base64"),
+              },
+            },
+          }),
+          redirect: "follow",
+        });
+
+        return new NextResponse(buffer, {
+          headers: { "Content-Type": "image/jpeg" },
+        });
+      } else {
+        // Store transparent image in CouchDB
+        await fetch(docUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            _attachments: {
+              "image.jpg": {
+                content_type: "image/jpeg",
+                data: transparentBuffer.toString("base64"),
+              },
+            },
+          }),
+          redirect: "follow",
+        }).catch((e) =>
           console.error("Failed to insert transparent image into DB:", e),
         );
-      return new NextResponse(transparentBuffer, {
-        headers: { "Content-Type": "image/png" }, // Set content type to PNG as it's a PNG
-      });
+        
+        return new NextResponse(transparentBuffer, {
+          headers: { "Content-Type": "image/png" },
+        });
+      }
     }
+
+    // Get attachment from CouchDB
+    const attachmentUrl = `${COUCHDB_URL}/${DB_NAME}/${encodeURIComponent(slugt)}/image.jpg`;
+    const attachmentResponse = await fetch(attachmentUrl, { redirect: "follow" });
+    const imageBuffer = Buffer.from(await attachmentResponse.arrayBuffer());
+
+    return new NextResponse(imageBuffer, {
+      headers: { "Content-Type": "image/jpeg" },
+    });
+  } catch (error) {
+    // Return error as plain text for debugging in Cloudflare
+    const errorMessage = error instanceof Error 
+      ? `Error: ${error.message}\n\nStack: ${error.stack}\n\nName: ${error.name}`
+      : `Unknown error: ${String(error)}`;
+    
+    return new NextResponse(errorMessage, {
+      status: 500,
+      headers: { "Content-Type": "text/plain" },
+    });
   }
-
-  const responsex = await db.attachment.get(slugt, "image.jpg");
-
-  return new NextResponse(responsex, {
-    headers: { "Content-Type": "image/jpeg" }, // This header might need dynamic adjustment
-  });
 }
