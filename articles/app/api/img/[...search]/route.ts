@@ -136,14 +136,12 @@ export async function GET(
       headers: { "Content-Type": "image/jpeg" },
     });
   } catch (error) {
-    // Return error as plain text for debugging in Cloudflare
-    const errorMessage = error instanceof Error 
-      ? `Error: ${error.message}\n\nStack: ${error.stack}\n\nName: ${error.name}`
-      : `Unknown error: ${String(error)}`;
-    
-    return new NextResponse(errorMessage, {
-      status: 500,
-      headers: { "Content-Type": "text/plain" },
+    // Return transparent PNG on any error instead of error text
+    console.error("Route error:", error);
+    const transparentBuffer = Buffer.from(TRANSPARENT_PNG_BASE64, "base64");
+    return new NextResponse(transparentBuffer, {
+      status: 200,
+      headers: { "Content-Type": "image/png" },
     });
   }
 }

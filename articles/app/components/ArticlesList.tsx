@@ -80,6 +80,13 @@ export default function ArticlesList({ initialArticles, totalPages, currentPage 
     return sentences.slice(0, 2).join(' ').trim().substring(0, 200) + '...';
   };
 
+  const getFirstImage = (text: string) => {
+    if (!text) return null;
+    // Match markdown image syntax: ![alt](url)
+    const match = text.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+    return match ? `/api/img/q/${match[2]}` : null;
+  };
+
   const cleanTitle = (title: string) => {
     if (!title) return '';
     return title.replace(/[#*]+/g, '').trim();
@@ -107,8 +114,17 @@ export default function ArticlesList({ initialArticles, totalPages, currentPage 
                 className="block group"
               >
                 <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:scale-[1.01] dark:border-zinc-800 dark:bg-zinc-900">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
+                  <div className="flex items-start gap-4">
+                    {article.text && getFirstImage(article.text) && (
+                      <div className="flex-shrink-0">
+                        <img 
+                          src={getFirstImage(article.text)!} 
+                          alt={cleanTitle(article.title)}
+                          className="w-32 h-32 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
                       <h2 className="text-xl font-semibold text-zinc-900 group-hover:text-blue-600 dark:text-zinc-50 dark:group-hover:text-blue-400 transition-colors">
                         {cleanTitle(article.title)}
                       </h2>
