@@ -13,15 +13,15 @@ export async function generateMetadata({
   params: Promise<{ genid: string }>;
 }): Promise<Metadata> {
   const { genid } = await params;
-  
+
   try {
     const { data } = await getClient().query({
       query: GET_ARTICLE_BY_GENID,
       variables: { _eq: genid },
     });
-    
+
     const article = data?.qa_ai?.[0];
-    
+
     if (!article) {
       return {
         title: 'Article Not Found',
@@ -171,12 +171,12 @@ export default async function ArticlePage({
     // Replace absolute URLs: ![alt](https://example.com/...) -> ![alt](https://renewz.org/api/img/q/https://example.com/...)
     let processed = markdown.replace(
       /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g,
-      '![$1](https://renewz.org/api/img/q/$2)'
+      '![$1](/api/img/q/$2)'
     );
     // Replace relative URLs: ![alt](/path/to/image.jpg) -> ![alt](https://renewz.org/api/img/q/path/to/image.jpg)
     processed = processed.replace(
       /!\[([^\]]*)\]\((\/[^)]+)\)/g,
-      (match, alt, path) => `![${alt}](https://renewz.org/api/img/q${path})`
+      (match, alt, path) => `![${alt}](/api/img/q${path})`
     );
     return processed;
   };
@@ -237,7 +237,7 @@ export default async function ArticlePage({
                 <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
                   Similar Articles
                 </h2>
-                
+
                 {similarArticles.length > 0 ? (
                   <div className="space-y-3">
                     {similarArticles.map((similar: any) => (
