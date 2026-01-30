@@ -3,7 +3,7 @@ import Link from 'next/link';
 import ContactForm from './ContactForm';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Articles',
+  title: 'Contact Us | Renewz.org',
   description: 'Get in touch with us. We\'d love to hear from you!',
 };
 

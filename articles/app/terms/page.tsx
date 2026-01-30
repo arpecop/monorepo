@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Articles',
+  title: 'Terms of Service | Renewz.org',
   description: 'Terms of service and conditions for using our articles platform.',
 };
 

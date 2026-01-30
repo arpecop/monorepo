@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Articles',
+  title: 'Privacy Policy | Renewz.org',
   description: 'Privacy policy and data protection information for our articles platform.',
 };
 

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'About Us | Articles',
+  title: 'About Us | Renewz.org',
   description: 'Learn more about our articles platform and our mission to provide quality content.',
 };
 

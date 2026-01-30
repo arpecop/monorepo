@@ -7,10 +7,11 @@ import ArticlesList from './components/ArticlesList';
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; search?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
+  const searchQuery = params.search;
   const offset = (page - 1) * 10;
 
   let articles = [];
@@ -18,10 +19,15 @@ export default async function Home({
   let error = null;
 
   try {
+    // Build where clause for search
+    const where = searchQuery 
+      ? { title: { _ilike: `%${searchQuery}%` } }
+      : {};
+
     const [articlesResult, countResult] = await Promise.all([
       getClient().query({
         query: GET_ARTICLES,
-        variables: { offset },
+        variables: { offset, where },
         context: {
           fetchOptions: {
             next: { revalidate: 60 }
@@ -30,6 +36,7 @@ export default async function Home({
       }),
       getClient().query({
         query: GET_ARTICLES_COUNT,
+        variables: { where },
         context: {
           fetchOptions: {
             next: { revalidate: 3600 }
@@ -50,11 +57,19 @@ export default async function Home({
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
-            Articles
+            Renewz.org
           </h1>
           <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
-            Explore our collection of articles
+            {searchQuery ? `Search results for "${searchQuery}"` : 'Explore our collection of articles'}
           </p>
+          {searchQuery && (
+            <a 
+              href="/"
+              className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+            >
+              Clear search
+            </a>
+          )}
         </div>
 
         {error && (

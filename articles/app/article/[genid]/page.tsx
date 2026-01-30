@@ -44,7 +44,7 @@ export async function generateMetadata({
 
     const title = cleanTitle(article.title);
     const description = getDescription(article.text);
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://renewz.org';
     const articleUrl = `${siteUrl}/article/${genid}`;
 
     return {
@@ -58,9 +58,8 @@ export async function generateMetadata({
         description,
         type: 'article',
         url: articleUrl,
-        siteName: 'Articles',
-        publishedTime: article.created_at,
-        modifiedTime: article.updated_at,
+        siteName: 'Renewz.org',
+        publishedTime: article.date,
       },
       twitter: {
         card: 'summary_large_image',
@@ -192,9 +191,63 @@ export default async function ArticlePage({
 
   const processedText = rewriteImageUrls(removeFirstLine(article.text));
 
+  // Generate JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: cleanTitle(article.title),
+    datePublished: article.date,
+    dateModified: article.date,
+    author: {
+      '@type': 'Organization',
+      name: 'Renewz.org',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Renewz.org',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://renewz.org'}/logo.png`,
+      },
+    },
+    description: removeFirstLine(article.text).substring(0, 200),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://renewz.org'}/article/${genid}`,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center space-x-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <li>
+              <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">
+                Home
+              </Link>
+            </li>
+            <li>
+              <span className="mx-2">/</span>
+            </li>
+            <li>
+              <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">
+                Articles
+              </Link>
+            </li>
+            <li>
+              <span className="mx-2">/</span>
+            </li>
+            <li className="text-zinc-900 dark:text-zinc-50 truncate max-w-md">
+              {cleanTitle(article.title)}
+            </li>
+          </ol>
+        </nav>
+
         <Link
           href="/"
           className="mb-8 inline-block text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -209,15 +262,19 @@ export default async function ArticlePage({
               <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
                 {cleanTitle(article.title)}
               </h1>
-              {article.date && (
-                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                  {new Date(article.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
-              )}
+              <div className="mt-4 flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
+                {article.date && (
+                  <time dateTime={article.date}>
+                    Published: {new Date(article.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </time>
+                )}
+                <span>•</span>
+                <span>By Renewz.org Team</span>
+              </div>
             </header>
 
             <div className="prose max-w-none" style={{ fontFamily: '"Inter", system-ui, sans-serif' }}>

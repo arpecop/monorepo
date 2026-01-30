@@ -5,25 +5,25 @@ import { ApolloWrapper } from "@/lib/apollo-provider";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://renewz.org';
 
 export const metadata: Metadata = {
-  title: "Articles",
+  title: "Renewz.org",
   description: "Professional articles and insights",
   metadataBase: new URL(siteUrl),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "Articles",
+    title: "Renewz.org",
     description: "Professional articles and insights",
     url: siteUrl,
-    siteName: "Articles",
+    siteName: "Renewz.org",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Articles",
+    title: "Renewz.org",
     description: "Professional articles and insights",
   },
 };

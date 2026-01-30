@@ -10,7 +10,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-4" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
-              Articles
+              Renewz.org
             </h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Quality content across technology, finance, health, lifestyle, and more.
@@ -57,6 +57,11 @@ export function Footer() {
                   Terms of Service
                 </Link>
               </li>
+              <li>
+                <Link href="/dmca" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
+                  DMCA Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -82,7 +87,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-zinc-200 dark:border-zinc-800 pt-8">
           <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-            © {currentYear} Articles. All rights reserved.
+            © {currentYear} Renewz.org. All rights reserved.
           </p>
         </div>
       </div>
