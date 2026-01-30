@@ -5,9 +5,27 @@ import { ApolloWrapper } from "@/lib/apollo-provider";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+
 export const metadata: Metadata = {
   title: "Articles",
   description: "Professional articles and insights",
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "Articles",
+    description: "Professional articles and insights",
+    url: siteUrl,
+    siteName: "Articles",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Articles",
+    description: "Professional articles and insights",
+  },
 };
 
 export default function RootLayout({
@@ -19,6 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="YOCdIIYfkSZxafqOqjVfUnsoHebuPB4PIH0SGISDNyQ" />
+        <meta name="google-adsense-account" content="ca-pub-5476404733919333" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:wght@400..900&family=Fira+Code:wght@300..700&display=swap" rel="stylesheet" />

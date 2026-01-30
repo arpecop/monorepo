@@ -44,14 +44,23 @@ export async function generateMetadata({
 
     const title = cleanTitle(article.title);
     const description = getDescription(article.text);
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+    const articleUrl = `${siteUrl}/article/${genid}`;
 
     return {
       title,
       description,
+      alternates: {
+        canonical: articleUrl,
+      },
       openGraph: {
         title,
         description,
         type: 'article',
+        url: articleUrl,
+        siteName: 'Articles',
+        publishedTime: article.created_at,
+        modifiedTime: article.updated_at,
       },
       twitter: {
         card: 'summary_large_image',
